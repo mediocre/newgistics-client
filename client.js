@@ -140,9 +140,6 @@ function NewgisticsClient(args) {
                     return callback(err);
                 }
 
-                //console.log(token);
-                console.log(JSON.stringify(body));
-
                 if (!body || !body.data) {
                     return callback(new Error('No response received from Newgistics'));
                 }
