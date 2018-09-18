@@ -17,7 +17,7 @@
   "main": "client.js",
   "name": "newgistics-client",
   "scripts": {
-    "test": "mocha --reporter spec test"
+    "test": "mocha --exit --reporter spec test"
   },
   "version": "0.0.1"
 }
