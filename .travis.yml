@@ -1,0 +1,14 @@
+before_script:
+  - npm i -g eslint
+  - eslint .
+dist: trusty
+
+language: node_js
+
+node_js:
+  - 10.9.0
+
+notifications:
+  slack: mediocre:nDgxXo7IeSkxifmFL6UIjcFd
+
+sudo: false
