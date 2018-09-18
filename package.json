@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "memory-cache": "^0.2.0",
+    "request": "^2.88.0"
+  },
+  "description": "A simple, specific client to authenticate, create shipments and retrieve label ZPL data from Newgistics",
+  "devDependencies": {
+    "mocha": "5.*"
+  },
+  "keywords": [
+    "newgistics",
+    "logistics",
+    "shipping",
+    "client",
+    "zpl"
+  ],
+  "main": "client.js",
+  "name": "newgistics-client",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.0.1"
+}
