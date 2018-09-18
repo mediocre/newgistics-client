@@ -41,13 +41,13 @@ describe('Arguments', function() {
 });
 
 describe('Functionality', function() {
-    it.skip('Should authenticate with generic sandbox keys and return a shipment descriptor', function(done) {
+    it('Should authenticate with generic sandbox keys and return a shipment descriptor', function(done) {
         var client = new NewgisticsClient({
-            api_url: 'https://shippingapi.sandbox.ncommerce.com/v1/packages',
-            auth_url: 'https://authapi.sandbox.ncommerce.com/connect/token',
-            clientFacilityId: '9999',
-            facilityId: '1111',
-            id: 'DEADBEEF-1CAT-2CAT-3CAT-1EE7DEADBEEF',
+            api_url: 'https://shippingapi.ncommerce.com/v1/packages',
+            auth_url: 'https://authapi.ncommerce.com/connect/token',
+            clientFacilityId: process.env.NG_CLIENT_FACILITY_ID || '9999',
+            facilityId: process.env.NG_FACILITY_ID || '1111',
+            id: process.env.NG_ID || 'DEADBEEF-1CAT-2CAT-3CAT-1EE7DEADBEEF',
             returnAddress: {
                 name: 'A Mediocre Corporation',
                 address1: '1 Meh Lane',
@@ -57,7 +57,7 @@ describe('Functionality', function() {
                 postalCode: '75010',
                 isResidential: false
             },
-            secret: 'DEADBEEF-4CAT-5CAT-6CAT-1EE7DEADBEEF'
+            secret: process.env.NG_SECRET || 'DEADBEEF-4CAT-5CAT-6CAT-1EE7DEADBEEF'
         });
 
         var package = {
@@ -73,9 +73,12 @@ describe('Functionality', function() {
         };
         client.createPackage(package, function(err, packageResponse) {
             assert.ifError(err);
-            console.log(JSON.stringify(packageResponse));
 
-            assert(true);
+            assert(packageResponse.packageId);
+            assert(packageResponse.trackingId);
+            assert(packageResponse.labels[0].labelData);
+            assert(packageResponse.pricingInformation);
+
             done();
         });
     });
