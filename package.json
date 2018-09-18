@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "memory-cache": "^0.2.0",
-    "request": "^2.88.0"
+    "memory-cache": "~0.2.0",
+    "request": "~2.88.0"
   },
   "description": "A simple, specific client to authenticate, create shipments and retrieve label ZPL data from Newgistics",
   "devDependencies": {
-    "mocha": "5.*"
+    "mocha": "*"
   },
   "keywords": [
     "newgistics",
