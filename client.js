@@ -48,13 +48,13 @@ function NewgisticsClient(args) {
         });
     };
 
-    _this.createShipment = function(address, length, width, height, weight, callback) {
-        if (!address || !address.name || !address.line1 || !address.postalCode || !address.city || !address.state) {
-            return callback(new Error('Address object missing required properties (name, line1, city, state, postalCode are required)'));
+    _this.createPackage = function(package, callback) {
+        if (!package || !package.name || !package.address1 || !package.postalCode || !package.city || !package.state) {
+            return callback(new Error('Package object missing required properties (name, address1, city, state, postalCode are required)'));
         }
 
-        if (!length || !width || !height || !weight) {
-            return callback(new Error('Length, width, height and weight are required'));
+        if (!package.length || !package.width || !package.height || !package.weight) {
+            return callback(new Error('Package object missing required properties (length, width, height and weight are required)'));
         }
 
         _this.authenticate(function(err, token) {
@@ -62,7 +62,7 @@ function NewgisticsClient(args) {
                 return callback(err);
             }
 
-            var shortestTwoDims = [ Number(length), Number(width), Number(height) ].sort((a, b) => b - a).slice(-2);
+            var shortestTwoDims = [ Number(package.length), Number(package.width), Number(package.height) ].sort((a, b) => b - a).slice(-2);
             var girth = (shortestTwoDims[0] + shortestTwoDims[1]) * 2;
 
             var rateRequestData = {
@@ -71,7 +71,7 @@ function NewgisticsClient(args) {
                 ngsFacilityId: _this.opts.facilityId,
                 returnAddress: {
                     name: _this.opts.returnAddress.name,
-                    address1: _this.opts.returnAddress.line1,
+                    address1: _this.opts.returnAddress.address1,
                     address2: _this.opts.returnAddress.line2,
                     city: _this.opts.returnAddress.city,
                     stateOrProvince: _this.opts.returnAddress.state,
@@ -94,15 +94,15 @@ function NewgisticsClient(args) {
             rateRequestData.dimensions = {
                 length: {
                     unitOfMeasure: 'Inches',
-                    measurementValue: length.toString()
+                    measurementValue: package.length.toString()
                 },
                 width: {
                     unitOfMeasure: 'Inches',
-                    measurementValue: width.toString()
+                    measurementValue: package.width.toString()
                 },
                 height: {
                     unitOfMeasure: 'Inches',
-                    measurementValue: height.toString()
+                    measurementValue: package.height.toString()
                 },
                 girth: {
                     unitOfMeasure: 'Inches',
@@ -112,18 +112,18 @@ function NewgisticsClient(args) {
             },
 
             rateRequestData.shipToAddress = {
-                name: address.name,
-                address1: address.line1,
-                city: address.city,
-                stateOrProvince: address.state,
-                postalCode: address.postalCode,
-                country: address.country || 'US',
-                isResidential: address.isResidential || false
+                name: package.name,
+                address1: package.address1,
+                city: package.city,
+                stateOrProvince: package.state,
+                postalCode: package.postalCode,
+                country: package.country || 'US',
+                isResidential: package.isResidential || false
             };
 
             rateRequestData.weight = {
                 unitOfMeasure: 'Pounds',
-                measurementValue: weight.toFixed(2)
+                measurementValue: package.weight.toFixed(2)
             };
 
             var rateRequest = {

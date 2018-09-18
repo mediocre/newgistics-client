@@ -13,7 +13,7 @@ describe('Arguments', function() {
                 city: 'Somewhereville',
                 country: 'US',
                 isResidential: false,
-                line1: '1 Nowhere Lane',
+                address1: '1 Nowhere Lane',
                 line2: 'Suite 0',
                 name: 'A Mediocre Corporation',
                 postalCode: '01234',
@@ -32,7 +32,7 @@ describe('Arguments', function() {
         assert.strictEqual('Somewhereville', client.opts.returnAddress.city);
         assert.strictEqual('US', client.opts.returnAddress.country);
         assert.strictEqual(false, client.opts.returnAddress.isResidential);
-        assert.strictEqual('1 Nowhere Lane', client.opts.returnAddress.line1);
+        assert.strictEqual('1 Nowhere Lane', client.opts.returnAddress.address1);
         assert.strictEqual('Suite 0', client.opts.returnAddress.line2);
         assert.strictEqual('A Mediocre Corporation', client.opts.returnAddress.name);
         assert.strictEqual('01234', client.opts.returnAddress.postalCode);
@@ -50,7 +50,7 @@ describe('Functionality', function() {
             id: 'DEADBEEF-1CAT-2CAT-3CAT-1EE7DEADBEEF',
             returnAddress: {
                 name: 'A Mediocre Corporation',
-                line1: '1 Meh Lane',
+                address1: '1 Meh Lane',
                 line2: 'Suite 0',
                 city: 'Carrollton',
                 state: 'TX',
@@ -60,16 +60,20 @@ describe('Functionality', function() {
             secret: 'DEADBEEF-4CAT-5CAT-6CAT-1EE7DEADBEEF'
         });
 
-        var address = {
+        var package = {
             city: 'Dallas',
-            line1: '5531 Willis Ave',
+            height: 4,
+            length: 12,
+            address1: '5531 Willis Ave',
             name: 'Joe User',
             postalCode: '75206',
-            state: 'TX'
+            state: 'TX',
+            weight: 0.5,
+            width: 8
         };
-        client.createShipment(address, 12, 8, 4, 0.5, function(err, shipmentResponse) {
+        client.createPackage(package, function(err, packageResponse) {
             assert.ifError(err);
-            console.log(JSON.stringify(shipmentResponse));
+            console.log(JSON.stringify(packageResponse));
 
             assert(true);
             done();
