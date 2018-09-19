@@ -18,10 +18,9 @@ Newgistics customers must obtain an API client_id and client_secret for the sand
 ```javascript
 const NewgisticsClient = require('newgistics-client');
 
-// instantiate with your credentials
 var newgisticsClient = new NewgisticsClient({
-    client_id: 'your_id',
-    client_secret: 'your_secret'
+    client_id: 'your_client_id',
+    client_secret: 'your_client_secret'
 });
 ```
 
