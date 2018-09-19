@@ -7,7 +7,7 @@ A client wrapper to authenticate and create packages with the Newgistics API.
 
 ## Requirements
 
-You will need your own Client ID, Secret, NGSFacilityId and ClientFacilityId provided by Newgistics. To successfully run tests, those values must be available through `process.env` at test time.
+You will need your own client ID, client secret, NGSFacilityId and ClientFacilityId provided by Newgistics. To successfully run tests, those values must be available through `process.env` at test time.
 
 ## Installation
 
@@ -16,14 +16,14 @@ You will need your own Client ID, Secret, NGSFacilityId and ClientFacilityId pro
 ## Usage
 
 ```javascript
-const NewgisticsClient = require('../client');
+const NewgisticsClient = require('newgistics-client');
 
 // instantiate with your credentials
-var client = new NewgisticsClient({
+var newgisticsClient = new NewgisticsClient({
+    client_id: 'your_id',
+    client_secret: 'your_secret',
     clientFacilityId: '9999',
-    facilityId: '0000',
-    id: 'your_id',
-    secret: 'your_secret'
+    facilityId: '0000'
 });
 
 // describe your package
@@ -70,14 +70,14 @@ var package = {
 };
 
 // ship things!
-client.createPackage(package, function(err, packageResponse) {
+newgisticsClient.createPackage(package, function(err, packageResponse) {
     // see "Example response" below
 };
 ```
 
 ## Authentication
 
-The `authenticate()` method is exposed if you need direct access to the bearer token for some reason. Explicit calls to `authenticate()` are not required; the `createPackage()` method calls it internally. The returned bearer token is cached in-memory based on the TTL/Expiry information returned from Newgistics to avoid needless calls to the OAuth endpoint.
+The `getToken()` method is exposed if you need direct access to the bearer token for some reason. Explicit calls to `getToken()` are not required; the `createPackage()` method calls it internally. The returned bearer token is cached in-memory based on the TTL/Expiry information returned from Newgistics to avoid needless calls to the OAuth endpoint.
 
 ## Example response
 ```json
@@ -138,4 +138,3 @@ The `authenticate()` method is exposed if you need direct access to the bearer t
     }
 }
 ```
-

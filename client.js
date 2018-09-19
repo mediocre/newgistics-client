@@ -2,40 +2,42 @@ const cache = require('memory-cache');
 const request = require('request');
 
 function NewgisticsClient(args) {
-    var _this = this;
-
-    _this.opts = Object.assign({
+    var opts = Object.assign({
         api_url: 'https://shippingapi.ncommerce.com/v1/packages',
         auth_url: 'https://authapi.ncommerce.com/connect/token',
+        client_id: '',
+        client_secret: '',
         clientFacilityId: '',
-        facilityId: '',
-        id: '',
-        secret: ''
+        facilityId: ''
     }, args);
 
-    _this.getToken = function(callback) {
+    this.getToken = function(callback) {
         // Try to get the token from memory cache
         var token = cache.get('newgistics-client-token');
 
-        if (token !== null) {
+        if (token) {
             return callback(null, token);
         }
 
         var req = {
             formData: {
-                client_id: _this.opts.id,
-                client_secret: _this.opts.secret,
+                client_id: opts.client_id,
+                client_secret: opts.client_secret,
                 grant_type: 'client_credentials',
                 scope: 'api'
             },
             json: true,
             method: 'POST',
-            url: _this.opts.auth_url
+            url: opts.auth_url
         };
 
         request(req, function(err, res, token) {
             if (err) {
                 return callback(err);
+            }
+
+            if (token.error) {
+                return callback(new Error(token.error));
             }
 
             // Put the token in memory cache
@@ -45,7 +47,7 @@ function NewgisticsClient(args) {
         });
     };
 
-    _this.createPackage = function(package, callback) {
+    this.createPackage = function(package, callback) {
         if (!package.returnAddress || !package.returnAddress.name || !package.returnAddress.address1 || !package.returnAddress.postalCode || !package.returnAddress.city || !package.returnAddress.stateOrProvince) {
             return callback(new Error('Package ReturnAddress object missing required properties (name, address1, city, stateOrProvince, postalCode are required)'));
         }
@@ -62,7 +64,7 @@ function NewgisticsClient(args) {
             return callback(new Error('Package object missing required property (weight)'));
         }
 
-        _this.getToken(function(err, token) {
+        this.getToken(function(err, token) {
             if (err) {
                 return callback(err);
             }
@@ -77,12 +79,12 @@ function NewgisticsClient(args) {
                     'DeliveryConfirmation'
                 ],
                 classOfService: 'Ground',
-                clientFacilityId: _this.opts.clientFacilityId,
+                clientFacilityId: opts.clientFacilityId,
                 correctAddress: false,
                 dimensions: package.dimensions,
                 hazmatClasses: [],
                 labelFormat: 'ZPL',
-                ngsFacilityId: _this.opts.facilityId,
+                ngsFacilityId: opts.facilityId,
                 PricePackage: true,
                 referenceNumbers: [],
                 returnAddress: Object.assign({}, addressDefaults, package.returnAddress),
@@ -98,7 +100,7 @@ function NewgisticsClient(args) {
                 },
                 json: rateRequestData,
                 method: 'POST',
-                url: _this.opts.api_url
+                url: opts.api_url
             };
 
             request(rateRequest, function(err, res, body) {
@@ -118,8 +120,6 @@ function NewgisticsClient(args) {
             });
         });
     };
-
-    return _this;
 }
 
 module.exports = NewgisticsClient;

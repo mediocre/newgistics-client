@@ -4,44 +4,49 @@ const cache = require('memory-cache');
 
 const NewgisticsClient = require('../client');
 
-describe('Constructor', function() {
-    it('Incoming args should be overlaid on opts', function() {
-        var client = new NewgisticsClient({
-            api_url: 'some_api_url',
-            auth_url: 'some_auth_url',
-            clientFacilityId: '9999',
-            facilityId: '0000',
-            id: 'an_id',
-            secret: 'a_secret'
-        });
-
-        assert.strictEqual('some_api_url', client.opts.api_url);
-        assert.strictEqual('some_auth_url', client.opts.auth_url);
-        assert.strictEqual('9999', client.opts.clientFacilityId);
-        assert.strictEqual('0000', client.opts.facilityId);
-        assert.strictEqual('an_id', client.opts.id);
-        assert.strictEqual('a_secret', client.opts.secret);
-    });
-});
-
-describe('Functionality', function() {
-    var client;
-
+describe('NewgisticsClient.getToken', function() {
     this.timeout(5000);
 
+    var newgisticsClient;
+
     before(function() {
-        client = new NewgisticsClient({
-            api_url: 'https://shippingapi.ncommerce.com/v1/packages',
-            auth_url: 'https://authapi.ncommerce.com/connect/token',
-            clientFacilityId: process.env.NG_CLIENT_FACILITY_ID,
-            facilityId: process.env.NG_FACILITY_ID,
-            id: process.env.NG_ID,
-            secret: process.env.NG_SECRET
+        newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
         });
     });
 
-    it('getToken() should return a valid token', function(done) {
-        client.getToken(function(err, token) {
+    it('should return an error', function(done) {
+        var invalidClient = new NewgisticsClient({
+            auth_url: 'invalid'
+        });
+
+        invalidClient.getToken(function(err, token) {
+            assert(err);
+
+            assert.strictEqual(token, undefined);
+
+            done();
+        });
+    });
+
+    it('should return an invalid_client error', function(done) {
+        var invalidClient = new NewgisticsClient({
+            client_id: 'invalid'
+        });
+
+        invalidClient.getToken(function(err, token) {
+            assert(err);
+
+            assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(token, undefined);
+
+            done();
+        });
+    });
+
+    it('should return a valid token', function(done) {
+        newgisticsClient.getToken(function(err, token) {
             assert.ifError(err);
 
             assert(token);
@@ -53,14 +58,14 @@ describe('Functionality', function() {
         });
     });
 
-    it('getToken() should return the same token on subsequent calls', function(done) {
+    it('should return the same token on subsequent calls', function(done) {
         // Clear existing token
         cache.del('newgistics-client-token');
 
-        client.getToken(function(err, token1) {
+        newgisticsClient.getToken(function(err, token1) {
             assert.ifError(err);
 
-            client.getToken(function(err, token2) {
+            newgisticsClient.getToken(function(err, token2) {
                 assert.ifError(err);
 
                 assert.deepStrictEqual(token1, token2);
@@ -69,7 +74,9 @@ describe('Functionality', function() {
             });
         });
     });
+});
 
+describe.skip('NewgisticsClient.createPackage', function() {
     it('createPackage() should successfully create a package', function(done) {
         var package = {
             dimensions: {
