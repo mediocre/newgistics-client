@@ -3,12 +3,12 @@ const request = require('request');
 
 function NewgisticsClient(args) {
     var opts = Object.assign({
-        api_url: 'https://shippingapi.ncommerce.com/v1/packages',
-        auth_url: 'https://authapi.ncommerce.com/connect/token',
+        authapi_url: 'https://authapi.ncommerce.com',
         client_id: '',
         client_secret: '',
         clientFacilityId: '',
-        facilityId: ''
+        facilityId: '',
+        shippingapi_url: 'https://shippingapi.ncommerce.com'
     }, args);
 
     this.getToken = function(callback) {
@@ -28,7 +28,7 @@ function NewgisticsClient(args) {
             },
             json: true,
             method: 'POST',
-            url: opts.auth_url
+            url: `${opts.authapi_url}/connect/token`
         };
 
         request(req, function(err, res, token) {
@@ -118,6 +118,18 @@ function NewgisticsClient(args) {
 
                 callback(null, body.data);
             });
+        });
+    };
+
+    this.ping = function(callback) {
+        var req = {
+            json: true,
+            method: 'GET',
+            url: `${opts.shippingapi_url}/ping`
+        };
+
+        request(req, function(err, res, pong) {
+            callback(err, pong);
         });
     };
 }

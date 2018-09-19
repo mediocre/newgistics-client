@@ -9,7 +9,7 @@ describe('NewgisticsClient.getToken', function() {
 
     it('should return an error', function(done) {
         var newgisticsClient = new NewgisticsClient({
-            auth_url: 'invalid'
+            authapi_url: 'invalid'
         });
 
         newgisticsClient.getToken(function(err, token) {
@@ -133,3 +133,36 @@ describe('NewgisticsClient.getToken', function() {
         });
     });
 });*/
+
+describe('NewgisticsClient.ping', function() {
+    this.timeout(5000);
+
+    it('should return an error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.ping(function(err, pong) {
+            assert(err);
+
+            assert.strictEqual(pong, undefined);
+
+            done();
+        });
+    });
+
+    it('should return a pong', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
+        newgisticsClient.ping(function(err, pong) {
+            assert.ifError(err);
+
+            assert(pong);
+
+            done();
+        });
+    });
+});
