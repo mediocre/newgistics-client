@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/mediocre/newgistics-client.svg?branch=master)](https://travis-ci.org/mediocre/newgistics-client)
 [![Coverage Status](https://coveralls.io/repos/github/mediocre/newgistics-client/badge.svg?branch=master)](https://coveralls.io/github/mediocre/newgistics-client?branch=master)
 
-A client wrapper to authenticate and create packages with the Newgistics API.
+A client wrapper to create packages with the Newgistics API.
 
 ## Requirements
 
@@ -77,7 +77,7 @@ client.createPackage(package, function(err, packageResponse) {
 
 ## Authentication
 
-The `authenticate()` method is exposed if you need direct access to the bearer token for some reason. Explicit calls to `authenticate()` are not required; the `createPackage()` method calls it internally. The returned bearer token is cached in-memory based on the TTL/Expiry information returned from Newgistics to avoid needless calls to the OAuth endpoint.
+The `getToken()` method is exposed if you need direct access to the bearer token for some reason. Explicit calls to `getToken()` are not required; the `createPackage()` method calls it internally. The returned bearer token is cached in-memory based on the TTL/Expiry information returned from Newgistics to avoid needless calls to the OAuth endpoint.
 
 ## Example response
 ```json
