@@ -1,7 +1,7 @@
 const assert = require('assert');
 const NewgisticsClient = require('../client');
 
-describe('Arguments', function() {
+describe('Constructor', function() {
     it('Incoming args should be overlaid on opts', function() {
         var client = new NewgisticsClient({
             api_url: 'some_api_url',
@@ -9,16 +9,6 @@ describe('Arguments', function() {
             clientFacilityId: '9999',
             facilityId: '0000',
             id: 'an_id',
-            returnAddress: {
-                city: 'Somewhereville',
-                country: 'US',
-                isResidential: false,
-                address1: '1 Nowhere Lane',
-                line2: 'Suite 0',
-                name: 'A Mediocre Corporation',
-                postalCode: '01234',
-                state: 'TX'
-            },
             secret: 'a_secret'
         });
 
@@ -28,48 +18,91 @@ describe('Arguments', function() {
         assert.strictEqual('0000', client.opts.facilityId);
         assert.strictEqual('an_id', client.opts.id);
         assert.strictEqual('a_secret', client.opts.secret);
-
-        assert.strictEqual('Somewhereville', client.opts.returnAddress.city);
-        assert.strictEqual('US', client.opts.returnAddress.country);
-        assert.strictEqual(false, client.opts.returnAddress.isResidential);
-        assert.strictEqual('1 Nowhere Lane', client.opts.returnAddress.address1);
-        assert.strictEqual('Suite 0', client.opts.returnAddress.line2);
-        assert.strictEqual('A Mediocre Corporation', client.opts.returnAddress.name);
-        assert.strictEqual('01234', client.opts.returnAddress.postalCode);
-        assert.strictEqual('TX', client.opts.returnAddress.state);
     });
 });
 
 describe('Functionality', function() {
-    it('Should authenticate with generic sandbox keys and return a shipment descriptor', function(done) {
-        var client = new NewgisticsClient({
+    var client;
+    var firstToken;
+
+    this.timeout(5000);
+
+    before(function() {
+        client = new NewgisticsClient({
             api_url: 'https://shippingapi.ncommerce.com/v1/packages',
             auth_url: 'https://authapi.ncommerce.com/connect/token',
-            clientFacilityId: process.env.NG_CLIENT_FACILITY_ID || '9999',
-            facilityId: process.env.NG_FACILITY_ID || '1111',
-            id: process.env.NG_ID || 'DEADBEEF-1CAT-2CAT-3CAT-1EE7DEADBEEF',
+            clientFacilityId: process.env.NG_CLIENT_FACILITY_ID,
+            facilityId: process.env.NG_FACILITY_ID,
+            id: process.env.NG_ID,
+            secret: process.env.NG_SECRET
+        });
+    });
+
+    it('authenticate() should return a valid token', function(done) {
+        client.authenticate(function(err, token) {
+            assert.ifError(err);
+            assert(token && token.length > 0);
+
+            firstToken = token;
+            done();
+        });
+    });
+
+    it('authenticate() should return the same token on subsequent calls', function(done) {
+        client.authenticate(function(err, token) {
+            assert.ifError(err);
+            assert.strictEqual(token, firstToken);
+
+            client.authenticate(function(err, anotherToken) {
+                assert.ifError(err);
+                assert.strictEqual(anotherToken, firstToken);
+
+                done();
+            });
+        });
+    });
+
+    it('createPackage() should successfully create a package', function(done) {
+        var package = {
+            dimensions: {
+                length: {
+                    unitOfMeasure: 'Inches',
+                    measurementValue: '12'
+                },
+                width: {
+                    unitOfMeasure: 'Inches',
+                    measurementValue: '8'
+                },
+                height: {
+                    unitOfMeasure: 'Inches',
+                    measurementValue: '4'
+                },
+                girth: {
+                    unitOfMeasure: 'Inches',
+                    measurementValue: '24'
+                },
+                isRectangular: true
+            },
             returnAddress: {
                 name: 'A Mediocre Corporation',
                 address1: '1 Meh Lane',
-                line2: 'Suite 0',
+                address2: 'Suite 0',
                 city: 'Carrollton',
-                state: 'TX',
+                stateOrProvince: 'TX',
                 postalCode: '75010',
                 isResidential: false
             },
-            secret: process.env.NG_SECRET || 'DEADBEEF-4CAT-5CAT-6CAT-1EE7DEADBEEF'
-        });
-
-        var package = {
-            city: 'Dallas',
-            height: 4,
-            length: 12,
-            address1: '5531 Willis Ave',
-            name: 'Joe User',
-            postalCode: '75206',
-            state: 'TX',
-            weight: 0.5,
-            width: 8
+            shipToAddress: {
+                city: 'Dallas',
+                address1: '5531 Willis Ave',
+                name: 'Joe User',
+                postalCode: '75206',
+                stateOrProvince: 'TX'
+            },
+            weight: {
+                unitOfMeasure: 'Pounds',
+                measurementValue: '0.5'
+            }
         };
         client.createPackage(package, function(err, packageResponse) {
             assert.ifError(err);
