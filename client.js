@@ -13,38 +13,35 @@ function NewgisticsClient(args) {
         secret: ''
     }, args);
 
-    _this.authenticate = function(callback) {
-        var token = cache.get('newgistics_auth_token');
+    _this.getToken = function(callback) {
+        // Try to get the token from memory cache
+        var token = cache.get('newgistics-client-token');
+
         if (token !== null) {
             return callback(null, token);
         }
 
-        var authRequest = {
+        var req = {
             formData: {
                 client_id: _this.opts.id,
                 client_secret: _this.opts.secret,
                 grant_type: 'client_credentials',
                 scope: 'api'
             },
+            json: true,
             method: 'POST',
             url: _this.opts.auth_url
         };
 
-        request(authRequest, function(err, res, body) {
+        request(req, function(err, res, token) {
             if (err) {
                 return callback(err);
             }
 
-            var jsonBody = JSON.parse(body);
-            const expiresIn = Number(jsonBody.expires_in);
-            token = jsonBody.access_token;
+            // Put the token in memory cache
+            cache.put('newgistics-client-token', token, token.expires_in / 2);
 
-            if (!token || !expiresIn) {
-                return callback(new Error('Unable to authenticate with Newgistics (token or expiry not received)'));
-            }
-
-            cache.put('newgistics_auth_token', token, expiresIn / 2);
-            return callback(null, token);
+            callback(null, token);
         });
     };
 
@@ -65,7 +62,7 @@ function NewgisticsClient(args) {
             return callback(new Error('Package object missing required property (weight)'));
         }
 
-        _this.authenticate(function(err, token) {
+        _this.getToken(function(err, token) {
             if (err) {
                 return callback(err);
             }
@@ -97,7 +94,7 @@ function NewgisticsClient(args) {
 
             var rateRequest = {
                 auth: {
-                    bearer: token
+                    bearer: token.access_token
                 },
                 json: rateRequestData,
                 method: 'POST',

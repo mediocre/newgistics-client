@@ -1,4 +1,7 @@
 const assert = require('assert');
+
+const cache = require('memory-cache');
+
 const NewgisticsClient = require('../client');
 
 describe('Constructor', function() {
@@ -23,7 +26,6 @@ describe('Constructor', function() {
 
 describe('Functionality', function() {
     var client;
-    var firstToken;
 
     this.timeout(5000);
 
@@ -38,24 +40,30 @@ describe('Functionality', function() {
         });
     });
 
-    it('authenticate() should return a valid token', function(done) {
-        client.authenticate(function(err, token) {
+    it('getToken() should return a valid token', function(done) {
+        client.getToken(function(err, token) {
             assert.ifError(err);
-            assert(token && token.length > 0);
 
-            firstToken = token;
+            assert(token);
+            assert(token.access_token);
+            assert(token.expires_in);
+            assert(token.token_type);
+
             done();
         });
     });
 
-    it('authenticate() should return the same token on subsequent calls', function(done) {
-        client.authenticate(function(err, token) {
-            assert.ifError(err);
-            assert.strictEqual(token, firstToken);
+    it('getToken() should return the same token on subsequent calls', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
 
-            client.authenticate(function(err, anotherToken) {
+        client.getToken(function(err, token1) {
+            assert.ifError(err);
+
+            client.getToken(function(err, token2) {
                 assert.ifError(err);
-                assert.strictEqual(anotherToken, firstToken);
+
+                assert.deepStrictEqual(token1, token2);
 
                 done();
             });
@@ -104,6 +112,7 @@ describe('Functionality', function() {
                 measurementValue: '0.5'
             }
         };
+
         client.createPackage(package, function(err, packageResponse) {
             assert.ifError(err);
 
