@@ -123,6 +123,9 @@ describe('NewgisticsClient.getToken', function() {
     this.timeout(5000);
 
     it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
         var newgisticsClient = new NewgisticsClient({
             authapi_url: 'invalid'
         });
@@ -137,6 +140,9 @@ describe('NewgisticsClient.getToken', function() {
     });
 
     it('should return an invalid_client error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
         var newgisticsClient = new NewgisticsClient({
             client_id: 'invalid'
         });
