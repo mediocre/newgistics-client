@@ -16,6 +16,7 @@
     "client",
     "zpl"
   ],
+  "license": "Apache-2.0",
   "main": "client.js",
   "name": "newgistics-client",
   "scripts": {
