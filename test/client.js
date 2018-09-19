@@ -77,8 +77,25 @@ describe('NewgisticsClient.getToken', function() {
     });
 });
 
-/*describe.skip('NewgisticsClient.createPackage', function() {
-    it('createPackage() should successfully create a package', function(done) {
+describe('NewgisticsClient.createPackage', function() {
+    this.timeout(5000);
+
+    it('should return an error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: 'invalid'
+        });
+
+        newgisticsClient.createPackage({}, function(err, package) {
+            assert(err);
+
+            assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(package, undefined);
+
+            done();
+        });
+    });
+
+    /*it('createPackage() should successfully create a package', function(done) {
         var package = {
             dimensions: {
                 length: {
@@ -131,8 +148,8 @@ describe('NewgisticsClient.getToken', function() {
 
             done();
         });
-    });
-});*/
+    });*/
+});
 
 describe('NewgisticsClient.ping', function() {
     this.timeout(5000);

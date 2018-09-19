@@ -48,22 +48,6 @@ function NewgisticsClient(args) {
     };
 
     this.createPackage = function(package, callback) {
-        if (!package.returnAddress || !package.returnAddress.name || !package.returnAddress.address1 || !package.returnAddress.postalCode || !package.returnAddress.city || !package.returnAddress.stateOrProvince) {
-            return callback(new Error('Package ReturnAddress object missing required properties (name, address1, city, stateOrProvince, postalCode are required)'));
-        }
-
-        if (!package.shipToAddress || !package.shipToAddress.name || !package.shipToAddress.address1 || !package.shipToAddress.postalCode || !package.shipToAddress.city || !package.shipToAddress.stateOrProvince) {
-            return callback(new Error('Package ShipToAddress object missing required properties (name, address1, city, stateOrProvince, postalCode are required)'));
-        }
-
-        if (!package.dimensions || !package.dimensions.length || !package.dimensions.width || !package.dimensions.height || !package.dimensions.girth) {
-            return callback(new Error('Package Dimensions object missing required properties (length, width, height and girth are required)'));
-        }
-
-        if (!package.weight) {
-            return callback(new Error('Package object missing required property (weight)'));
-        }
-
         this.getToken(function(err, token) {
             if (err) {
                 return callback(err);
