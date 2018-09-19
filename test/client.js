@@ -81,6 +81,9 @@ describe('NewgisticsClient.createPackage', function() {
     this.timeout(5000);
 
     it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
         var newgisticsClient = new NewgisticsClient({
             client_id: 'invalid'
         });
@@ -95,60 +98,96 @@ describe('NewgisticsClient.createPackage', function() {
         });
     });
 
-    /*it('createPackage() should successfully create a package', function(done) {
+    it('should return an error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.createPackage({}, function(err, package) {
+            assert(err);
+
+            assert.strictEqual(package, undefined);
+
+            done();
+        });
+    });
+
+    it('should return an error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
+        newgisticsClient.createPackage({}, function(err, package) {
+            assert(err);
+
+            assert.strictEqual(package, undefined);
+
+            done();
+        });
+    });
+
+    it('should create a package', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
         var package = {
+            classOfService: 'Ground',
+            clientFacilityId: '8448',
             dimensions: {
+                height: {
+                    measurementValue: '1',
+                    unitOfMeasure: 'Inches'
+                },
+                isRectangular: true,
                 length: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: '12'
+                    measurementValue: '6',
+                    unitOfMeasure: 'Inches'
                 },
                 width: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: '8'
-                },
-                height: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: '4'
-                },
-                girth: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: '24'
-                },
-                isRectangular: true
+                    measurementValue: '4',
+                    unitOfMeasure: 'Inches'
+                }
             },
+            ngsFacilityId: '1361',
+            pricePackage: true,
             returnAddress: {
-                name: 'A Mediocre Corporation',
-                address1: '1 Meh Lane',
-                address2: 'Suite 0',
+                address1: '4717 Plano Parkway',
+                address2: 'Suite 130',
                 city: 'Carrollton',
-                stateOrProvince: 'TX',
+                country: 'US',
+                isResidential: false,
+                name: 'A Mediocre Corporation',
                 postalCode: '75010',
-                isResidential: false
+                stateOrProvince: 'TX'
             },
             shipToAddress: {
-                city: 'Dallas',
                 address1: '5531 Willis Ave',
+                city: 'Dallas',
+                country: 'US',
                 name: 'Joe User',
                 postalCode: '75206',
                 stateOrProvince: 'TX'
             },
             weight: {
-                unitOfMeasure: 'Pounds',
-                measurementValue: '0.5'
+                measurementValue: '0.5',
+                unitOfMeasure: 'Pounds'
             }
         };
 
-        newgisticsClient.createPackage(package, function(err, packageResponse) {
+        newgisticsClient.createPackage(package, function(err, package) {
             assert.ifError(err);
 
-            assert(packageResponse.packageId);
-            assert(packageResponse.trackingId);
-            assert(packageResponse.labels[0].labelData);
-            assert(packageResponse.pricingInformation);
+            assert(package.packageId);
+            assert(package.trackingId);
+            assert(package.labels[0].labelData);
+            assert(package.pricingInformation);
 
             done();
         });
-    });*/
+    });
 });
 
 describe('NewgisticsClient.ping', function() {

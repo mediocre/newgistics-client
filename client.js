@@ -6,8 +6,6 @@ function NewgisticsClient(args) {
         authapi_url: 'https://authapi.ncommerce.com',
         client_id: '',
         client_secret: '',
-        clientFacilityId: '',
-        facilityId: '',
         shippingapi_url: 'https://shippingapi.ncommerce.com'
     }, args);
 
@@ -53,54 +51,25 @@ function NewgisticsClient(args) {
                 return callback(err);
             }
 
-            const addressDefaults = {
-                country: 'US',
-                isResidential: true
-            };
-
-            var rateRequestData = {
-                additionalServices: [
-                    'DeliveryConfirmation'
-                ],
-                classOfService: 'Ground',
-                clientFacilityId: opts.clientFacilityId,
-                correctAddress: false,
-                dimensions: package.dimensions,
-                hazmatClasses: [],
-                labelFormat: 'ZPL',
-                ngsFacilityId: opts.facilityId,
-                PricePackage: true,
-                referenceNumbers: [],
-                returnAddress: Object.assign({}, addressDefaults, package.returnAddress),
-                returnService: 'AddressServiceRequested',
-                shipToAddress: Object.assign({}, addressDefaults, package.shipToAddress),
-                verifyAddress: true,
-                weight: package.weight
-            };
-
-            var rateRequest = {
+            var req = {
                 auth: {
                     bearer: token.access_token
                 },
-                json: rateRequestData,
+                json: package,
                 method: 'POST',
-                url: opts.api_url
+                url: `${opts.shippingapi_url}/v1/packages`
             };
 
-            request(rateRequest, function(err, res, body) {
+            request(req, function(err, res, package) {
                 if (err) {
                     return callback(err);
                 }
 
-                if (!body) {
-                    return callback(new Error('No response received from Newgistics'));
+                if (package.error) {
+                    return callback(new Error(package.error.message));
                 }
 
-                if (body.error) {
-                    return callback(new Error(body.error.message));
-                }
-
-                callback(null, body.data);
+                callback(null, package.data);
             });
         });
     };
