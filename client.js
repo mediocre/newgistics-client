@@ -49,12 +49,20 @@ function NewgisticsClient(args) {
     };
 
     _this.createPackage = function(package, callback) {
-        if (!package || !package.name || !package.address1 || !package.postalCode || !package.city || !package.state) {
-            return callback(new Error('Package object missing required properties (name, address1, city, state, postalCode are required)'));
+        if (!package.returnAddress || !package.returnAddress.name || !package.returnAddress.address1 || !package.returnAddress.postalCode || !package.returnAddress.city || !package.returnAddress.stateOrProvince) {
+            return callback(new Error('Package ReturnAddress object missing required properties (name, address1, city, stateOrProvince, postalCode are required)'));
         }
 
-        if (!package.length || !package.width || !package.height || !package.weight) {
-            return callback(new Error('Package object missing required properties (length, width, height and weight are required)'));
+        if (!package.shipToAddress || !package.shipToAddress.name || !package.shipToAddress.address1 || !package.shipToAddress.postalCode || !package.shipToAddress.city || !package.shipToAddress.stateOrProvince) {
+            return callback(new Error('Package ShipToAddress object missing required properties (name, address1, city, stateOrProvince, postalCode are required)'));
+        }
+
+        if (!package.dimensions || !package.dimensions.length || !package.dimensions.width || !package.dimensions.height || !package.dimensions.girth) {
+            return callback(new Error('Package Dimensions object missing required properties (length, width, height and girth are required)'));
+        }
+
+        if (!package.weight) {
+            return callback(new Error('Package object missing required property (weight)'));
         }
 
         _this.authenticate(function(err, token) {
@@ -62,68 +70,29 @@ function NewgisticsClient(args) {
                 return callback(err);
             }
 
-            var shortestTwoDims = [ Number(package.length), Number(package.width), Number(package.height) ].sort((a, b) => b - a).slice(-2);
-            var girth = (shortestTwoDims[0] + shortestTwoDims[1]) * 2;
+            const addressDefaults = {
+                country: 'US',
+                isResidential: true
+            };
 
             var rateRequestData = {
-                PricePackage: true,
-                clientFacilityId: _this.opts.clientFacilityId,
-                ngsFacilityId: _this.opts.facilityId,
-                returnAddress: {
-                    name: _this.opts.returnAddress.name,
-                    address1: _this.opts.returnAddress.address1,
-                    address2: _this.opts.returnAddress.line2,
-                    city: _this.opts.returnAddress.city,
-                    stateOrProvince: _this.opts.returnAddress.state,
-                    postalCode: _this.opts.returnAddress.postalCode,
-                    country: _this.opts.returnAddress.country || 'US',
-                    isResidential: _this.opts.returnAddress.isResidential || false
-                },
                 additionalServices: [
                     'DeliveryConfirmation'
                 ],
-                returnService: 'AddressServiceRequested',
                 classOfService: 'Ground',
-                referenceNumbers: [],
-                labelFormat: 'ZPL',
-                verifyAddress: true,
+                clientFacilityId: _this.opts.clientFacilityId,
                 correctAddress: false,
-                hazmatClasses: []
-            };
-
-            rateRequestData.dimensions = {
-                length: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: package.length.toString()
-                },
-                width: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: package.width.toString()
-                },
-                height: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: package.height.toString()
-                },
-                girth: {
-                    unitOfMeasure: 'Inches',
-                    measurementValue: girth.toString()
-                },
-                isRectangular: true
-            },
-
-            rateRequestData.shipToAddress = {
-                name: package.name,
-                address1: package.address1,
-                city: package.city,
-                stateOrProvince: package.state,
-                postalCode: package.postalCode,
-                country: package.country || 'US',
-                isResidential: package.isResidential || false
-            };
-
-            rateRequestData.weight = {
-                unitOfMeasure: 'Pounds',
-                measurementValue: package.weight.toFixed(2)
+                dimensions: package.dimensions,
+                hazmatClasses: [],
+                labelFormat: 'ZPL',
+                ngsFacilityId: _this.opts.facilityId,
+                PricePackage: true,
+                referenceNumbers: [],
+                returnAddress: Object.assign({}, addressDefaults, package.returnAddress),
+                returnService: 'AddressServiceRequested',
+                shipToAddress: Object.assign({}, addressDefaults, package.shipToAddress),
+                verifyAddress: true,
+                weight: package.weight
             };
 
             var rateRequest = {
@@ -140,8 +109,12 @@ function NewgisticsClient(args) {
                     return callback(err);
                 }
 
-                if (!body || !body.data) {
+                if (!body) {
                     return callback(new Error('No response received from Newgistics'));
+                }
+
+                if (body.error) {
+                    return callback(new Error(body.error.message));
                 }
 
                 callback(null, body.data);
