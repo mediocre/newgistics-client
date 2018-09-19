@@ -100,6 +100,8 @@ describe('NewgisticsClient.createPackage', function() {
 
     it('should return an error', function(done) {
         var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
             shippingapi_url: 'invalid'
         });
 
