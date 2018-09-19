@@ -7,21 +7,12 @@ const NewgisticsClient = require('../client');
 describe('NewgisticsClient.getToken', function() {
     this.timeout(5000);
 
-    var newgisticsClient;
-
-    before(function() {
-        newgisticsClient = new NewgisticsClient({
-            client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
-        });
-    });
-
     it('should return an error', function(done) {
-        var invalidClient = new NewgisticsClient({
+        var newgisticsClient = new NewgisticsClient({
             auth_url: 'invalid'
         });
 
-        invalidClient.getToken(function(err, token) {
+        newgisticsClient.getToken(function(err, token) {
             assert(err);
 
             assert.strictEqual(token, undefined);
@@ -31,11 +22,11 @@ describe('NewgisticsClient.getToken', function() {
     });
 
     it('should return an invalid_client error', function(done) {
-        var invalidClient = new NewgisticsClient({
+        var newgisticsClient = new NewgisticsClient({
             client_id: 'invalid'
         });
 
-        invalidClient.getToken(function(err, token) {
+        newgisticsClient.getToken(function(err, token) {
             assert(err);
 
             assert.strictEqual(err.message, 'invalid_client');
@@ -46,6 +37,11 @@ describe('NewgisticsClient.getToken', function() {
     });
 
     it('should return a valid token', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
         newgisticsClient.getToken(function(err, token) {
             assert.ifError(err);
 
@@ -59,6 +55,11 @@ describe('NewgisticsClient.getToken', function() {
     });
 
     it('should return the same token on subsequent calls', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
         // Clear existing token
         cache.del('newgistics-client-token');
 
@@ -76,7 +77,7 @@ describe('NewgisticsClient.getToken', function() {
     });
 });
 
-describe.skip('NewgisticsClient.createPackage', function() {
+/*describe.skip('NewgisticsClient.createPackage', function() {
     it('createPackage() should successfully create a package', function(done) {
         var package = {
             dimensions: {
@@ -120,7 +121,7 @@ describe.skip('NewgisticsClient.createPackage', function() {
             }
         };
 
-        client.createPackage(package, function(err, packageResponse) {
+        newgisticsClient.createPackage(package, function(err, packageResponse) {
             assert.ifError(err);
 
             assert(packageResponse.packageId);
@@ -131,4 +132,4 @@ describe.skip('NewgisticsClient.createPackage', function() {
             done();
         });
     });
-});
+});*/
