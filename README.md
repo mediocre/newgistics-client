@@ -23,6 +23,7 @@ var newgisticsClient = new NewgisticsClient({
     client_id: 'your_id',
     client_secret: 'your_secret'
 });
+```
 
 ### newgisticsClient.createPackage(package, callback)
 
