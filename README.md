@@ -3,11 +3,11 @@
 [![Build Status](https://travis-ci.org/mediocre/newgistics-client.svg?branch=master)](https://travis-ci.org/mediocre/newgistics-client)
 [![Coverage Status](https://coveralls.io/repos/github/mediocre/newgistics-client/badge.svg?branch=master)](https://coveralls.io/github/mediocre/newgistics-client?branch=master)
 
-A client wrapper to create packages with the Newgistics API.
+A client library for the Newgistics Shipping API that supports generation of Newgistics compliant delivery labels.
 
 ## Requirements
 
-You will need your own client ID, client secret, NGSFacilityId and ClientFacilityId provided by Newgistics. To successfully run tests, those values must be available through `process.env` at test time.
+Newgistics customers must obtain an API client_id and client_secret for the sandbox test environment from Newgistics before integrating. Production client_id and client_secret must be obtained before promotion to the production environment.
 
 ## Installation
 
@@ -21,120 +21,85 @@ const NewgisticsClient = require('newgistics-client');
 // instantiate with your credentials
 var newgisticsClient = new NewgisticsClient({
     client_id: 'your_id',
-    client_secret: 'your_secret',
-    clientFacilityId: '9999',
-    facilityId: '0000'
+    client_secret: 'your_secret'
 });
 
-// describe your package
-var package = {
+### newgisticsClient.createPackage(package, callback)
+
+Create a package and obtain a label. Returns ZPL format or URL for label image.
+
+**Example**
+
+```javascript
+var packageRequest = {
+    classOfService: 'Ground',
+    clientFacilityId: '8448',
     dimensions: {
+        height: {
+            measurementValue: '1',
+            unitOfMeasure: 'Inches'
+        },
+        isRectangular: true,
         length: {
-            unitOfMeasure: 'Inches',
-            measurementValue: '12'
+            measurementValue: '6',
+            unitOfMeasure: 'Inches'
         },
         width: {
-            unitOfMeasure: 'Inches',
-            measurementValue: '8'
-        },
-        height: {
-            unitOfMeasure: 'Inches',
-            measurementValue: '4'
-        },
-        girth: {
-            unitOfMeasure: 'Inches',
-            measurementValue: '24'
-        },
-        isRectangular: true
+            measurementValue: '4',
+            unitOfMeasure: 'Inches'
+        }
     },
+    ngsFacilityId: '1361',
+    pricePackage: true,
     returnAddress: {
+        address1: '4717 Plano Parkway',
+        address2: 'Suite 130',
+        city: 'Carrollton',
+        country: 'US',
+        isResidential: false,
         name: 'A Mediocre Corporation',
-        address1: '1 Meh Lane',
-        address2: 'Suite 0',
-        city: 'Texasville',
-        stateOrProvince: 'TX',
-        postalCode: '01010',
-        isResidential: false
+        postalCode: '75010',
+        stateOrProvince: 'TX'
     },
     shipToAddress: {
-        city: 'Washingtonian',
-        address1: '10101 Binary Way',
-        name: 'Glenn Irk',
-        postalCode: '10101',
-        stateOrProvince: 'WA'
+        address1: '5531 Willis Ave',
+        city: 'Dallas',
+        country: 'US',
+        name: 'Joe User',
+        postalCode: '75206',
+        stateOrProvince: 'TX'
     },
     weight: {
-        unitOfMeasure: 'Pounds',
-        measurementValue: '0.5'
+        measurementValue: '0.5',
+        unitOfMeasure: 'Pounds'
     }
 };
 
-// ship things!
-newgisticsClient.createPackage(package, function(err, packageResponse) {
-    // see "Example response" below
-};
+newgisticsClient.createPackage(packageRequest, function(err, packageResponse) {
+    console.log(packageResponse);
+});
 ```
 
-## Authentication
+### newgisticsClient.getToken()
 
-The `getToken()` method is exposed if you need direct access to the bearer token for some reason. Explicit calls to `getToken()` are not required; the `createPackage()` method calls it internally. The returned bearer token is cached in-memory based on the TTL/Expiry information returned from Newgistics to avoid needless calls to the OAuth endpoint.
+Obtain a JWT Bearer Token for use in calls to other Newgistics Services.
 
-## Example response
-```json
-{
-    "packageId": "redacted",
-    "trackingId": "even_more_redacted",
-    "labels": [
-        {
-            "labelType": "ShippingLabel",
-            "labelData": "redacted"
-        }
-    ],
-    "classOfService": "Ground",
-    "referenceNumbers": [],
-    "ngsFacilityId": "9999",
-    "carrier": "redacted",
-    "carrierClassOfService": "redacted",
-    "hazmatClasses": [],
-    "subscription": null,
-    "addressVerification": {
-        "address": {
-            "name": "Glenn Irk",
-            "attention": null,
-            "address1": "10101 Binary Way",
-            "address2": "",
-            "city": "Washingtonian",
-            "stateOrProvince": "WA",
-            "urbanization": "",
-            "postalCode": "10101-0101",
-            "country": "US",
-            "isResidential": true
-        },
-        "status": "Verified",
-        "summary": [
-            "redacted"
-        ]
-    },
-    "pricingInformation": {
-        "ancillaryChargeAmt": 0,
-        "basePrice": X.XX,
-        "totalPrice": X.XX,
-        "fees": [
-            {
-                "feeAmt": X.X,
-                "feeType": "BaseFee"
-            },
-            {
-                "feeAmt": X.XX,
-                "feeType": "FuelSurcharge"
-            }
-        ],
-        "billingWeight": X,
-        "billingZone": X,
-        "isAdjustment": false,
-        "rateId": null,
-        "rateResultCode": "Success",
-        "errorMessage": null
-    }
-}
+**Example**
+
+```javascript
+newgisticsClient.getToken(function(err, token) {
+    console.log(token);
+});
+```
+
+### newgisticsClient.ping()
+
+The Newgistics Shipping API is designed to be low latency and scalable. It offers between 100 and 200 millisecond response times in the continental US. You can validate response times by using the ping method.
+
+**Example**
+
+```javascript
+newgisticsClient.ping(function(err, pong) {
+    console.log(pong);
+});
 ```

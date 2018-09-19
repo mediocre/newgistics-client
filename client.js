@@ -9,6 +9,35 @@ function NewgisticsClient(args) {
         shippingapi_url: 'https://shippingapi.ncommerce.com'
     }, args);
 
+    this.createPackage = function(package, callback) {
+        this.getToken(function(err, token) {
+            if (err) {
+                return callback(err);
+            }
+
+            var req = {
+                auth: {
+                    bearer: token.access_token
+                },
+                json: package,
+                method: 'POST',
+                url: `${opts.shippingapi_url}/v1/packages`
+            };
+
+            request(req, function(err, res, package) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (package.error) {
+                    return callback(new Error(package.error.message));
+                }
+
+                callback(null, package.data);
+            });
+        });
+    };
+
     this.getToken = function(callback) {
         // Try to get the token from memory cache
         var token = cache.get('newgistics-client-token');
@@ -42,35 +71,6 @@ function NewgisticsClient(args) {
             cache.put('newgistics-client-token', token, token.expires_in / 2);
 
             callback(null, token);
-        });
-    };
-
-    this.createPackage = function(package, callback) {
-        this.getToken(function(err, token) {
-            if (err) {
-                return callback(err);
-            }
-
-            var req = {
-                auth: {
-                    bearer: token.access_token
-                },
-                json: package,
-                method: 'POST',
-                url: `${opts.shippingapi_url}/v1/packages`
-            };
-
-            request(req, function(err, res, package) {
-                if (err) {
-                    return callback(err);
-                }
-
-                if (package.error) {
-                    return callback(new Error(package.error.message));
-                }
-
-                callback(null, package.data);
-            });
         });
     };
 

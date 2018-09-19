@@ -4,79 +4,6 @@ const cache = require('memory-cache');
 
 const NewgisticsClient = require('../client');
 
-describe('NewgisticsClient.getToken', function() {
-    this.timeout(5000);
-
-    it('should return an error', function(done) {
-        var newgisticsClient = new NewgisticsClient({
-            authapi_url: 'invalid'
-        });
-
-        newgisticsClient.getToken(function(err, token) {
-            assert(err);
-
-            assert.strictEqual(token, undefined);
-
-            done();
-        });
-    });
-
-    it('should return an invalid_client error', function(done) {
-        var newgisticsClient = new NewgisticsClient({
-            client_id: 'invalid'
-        });
-
-        newgisticsClient.getToken(function(err, token) {
-            assert(err);
-
-            assert.strictEqual(err.message, 'invalid_client');
-            assert.strictEqual(token, undefined);
-
-            done();
-        });
-    });
-
-    it('should return a valid token', function(done) {
-        var newgisticsClient = new NewgisticsClient({
-            client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
-        });
-
-        newgisticsClient.getToken(function(err, token) {
-            assert.ifError(err);
-
-            assert(token);
-            assert(token.access_token);
-            assert(token.expires_in);
-            assert(token.token_type);
-
-            done();
-        });
-    });
-
-    it('should return the same token on subsequent calls', function(done) {
-        var newgisticsClient = new NewgisticsClient({
-            client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
-        });
-
-        // Clear existing token
-        cache.del('newgistics-client-token');
-
-        newgisticsClient.getToken(function(err, token1) {
-            assert.ifError(err);
-
-            newgisticsClient.getToken(function(err, token2) {
-                assert.ifError(err);
-
-                assert.deepStrictEqual(token1, token2);
-
-                done();
-            });
-        });
-    });
-});
-
 describe('NewgisticsClient.createPackage', function() {
     this.timeout(5000);
 
@@ -188,6 +115,79 @@ describe('NewgisticsClient.createPackage', function() {
             assert(package.pricingInformation);
 
             done();
+        });
+    });
+});
+
+describe('NewgisticsClient.getToken', function() {
+    this.timeout(5000);
+
+    it('should return an error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            authapi_url: 'invalid'
+        });
+
+        newgisticsClient.getToken(function(err, token) {
+            assert(err);
+
+            assert.strictEqual(token, undefined);
+
+            done();
+        });
+    });
+
+    it('should return an invalid_client error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: 'invalid'
+        });
+
+        newgisticsClient.getToken(function(err, token) {
+            assert(err);
+
+            assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(token, undefined);
+
+            done();
+        });
+    });
+
+    it('should return a valid token', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
+        newgisticsClient.getToken(function(err, token) {
+            assert.ifError(err);
+
+            assert(token);
+            assert(token.access_token);
+            assert(token.expires_in);
+            assert(token.token_type);
+
+            done();
+        });
+    });
+
+    it('should return the same token on subsequent calls', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        newgisticsClient.getToken(function(err, token1) {
+            assert.ifError(err);
+
+            newgisticsClient.getToken(function(err, token2) {
+                assert.ifError(err);
+
+                assert.deepStrictEqual(token1, token2);
+
+                done();
+            });
         });
     });
 });
