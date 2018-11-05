@@ -4,6 +4,8 @@ const cache = require('memory-cache');
 
 const NewgisticsClient = require('../client');
 
+var trackingNumber;
+
 describe('NewgisticsClient.createPackage', function() {
     this.timeout(5000);
 
@@ -113,6 +115,8 @@ describe('NewgisticsClient.createPackage', function() {
             assert(package.trackingId);
             assert(package.labels[0].labelData);
             assert(package.pricingInformation);
+
+            trackingNumber = package.trackingId;
 
             done();
         });
@@ -225,6 +229,48 @@ describe('NewgisticsClient.ping', function() {
             assert.ifError(err);
 
             assert(pong);
+
+            done();
+        });
+    });
+});
+
+describe('NewgisticsClient.voidTracking', function() {
+    this.timeout(5000);
+
+    it('should return an error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.voidTracking('invalid', function(err) {
+            assert(err);
+
+            done();
+        });
+    });
+
+    it('should not return an error for an invalid tracking number', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
+        newgisticsClient.voidTracking('invalid', function(err) {
+            assert.ifError(err);
+
+            done();
+        });
+    });
+
+    it('should void tracking', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
+        newgisticsClient.voidTracking(trackingNumber, function(err) {
+            assert.ifError(err);
 
             done();
         });

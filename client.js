@@ -85,6 +85,37 @@ function NewgisticsClient(args) {
             callback(err, pong);
         });
     };
+
+    this.voidTracking = function(trackingNumber, callback) {
+        this.getToken(function(err, token) {
+            if (err) {
+                return callback(err);
+            }
+
+            var req = {
+                auth: {
+                    bearer: token.access_token
+                },
+                formData: {
+                    trackingId: trackingNumber
+                },
+                method: 'POST',
+                url: `${opts.shippingapi_url}/v1/packages/trackingId/${trackingNumber}/void`
+            };
+
+            request(req, function(err, res) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (res.statusCode !== 200 && res.statusCode !== 404) {
+                    return callback(new Error(res.statusCode));
+                }
+
+                callback();
+            });
+        });
+    };
 }
 
 module.exports = NewgisticsClient;
