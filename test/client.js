@@ -239,7 +239,12 @@ describe('NewgisticsClient.voidTracking', function() {
     this.timeout(5000);
 
     it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
         var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
             shippingapi_url: 'invalid'
         });
 
