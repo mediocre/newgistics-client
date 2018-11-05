@@ -250,6 +250,19 @@ describe('NewgisticsClient.voidTracking', function() {
         });
     });
 
+    it('should return an error', function(done) {
+        var newgisticsClient = new NewgisticsClient({
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+        });
+
+        newgisticsClient.voidTracking('\n', function(err) {
+            assert(err);
+
+            done();
+        });
+    });
+
     it('should not return an error for an invalid tracking number', function(done) {
         var newgisticsClient = new NewgisticsClient({
             client_id: process.env.NEWGISTICS_CLIENT_ID,
