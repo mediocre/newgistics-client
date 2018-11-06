@@ -106,7 +106,7 @@ newgisticsClient.ping(function(err, pong) {
 
 ### newgisticsClient.voidTracking(trackingNumber, callback)
 
-Void tracking for a package by tracking number
+Void label previously created by tracking number.
 
 **Example**
 
