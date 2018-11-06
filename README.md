@@ -115,4 +115,3 @@ newgisticsClient.voidTracking('myTrackingNumber', function(err) {
     console.log(err);
 });
 ```
-
