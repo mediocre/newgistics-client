@@ -4,8 +4,6 @@ const cache = require('memory-cache');
 
 const NewgisticsClient = require('../client');
 
-var trackingNumber;
-
 describe('NewgisticsClient.createPackage', function() {
     this.timeout(5000);
 
@@ -115,8 +113,6 @@ describe('NewgisticsClient.createPackage', function() {
             assert(package.trackingId);
             assert(package.labels[0].labelData);
             assert(package.pricingInformation);
-
-            trackingNumber = package.trackingId;
 
             done();
         });
@@ -300,10 +296,60 @@ describe('NewgisticsClient.voidTracking', function() {
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET
         });
 
-        newgisticsClient.voidTracking(trackingNumber, function(err) {
-            assert.ifError(err);
+        var package = {
+            classOfService: 'Ground',
+            clientFacilityId: '8448',
+            dimensions: {
+                height: {
+                    measurementValue: '1',
+                    unitOfMeasure: 'Inches'
+                },
+                isRectangular: true,
+                length: {
+                    measurementValue: '6',
+                    unitOfMeasure: 'Inches'
+                },
+                width: {
+                    measurementValue: '4',
+                    unitOfMeasure: 'Inches'
+                }
+            },
+            ngsFacilityId: '1361',
+            pricePackage: true,
+            returnAddress: {
+                address1: '4717 Plano Parkway',
+                address2: 'Suite 130',
+                city: 'Carrollton',
+                country: 'US',
+                isResidential: false,
+                name: 'A Mediocre Corporation',
+                postalCode: '75010',
+                stateOrProvince: 'TX'
+            },
+            shipToAddress: {
+                address1: '5531 Willis Ave',
+                city: 'Dallas',
+                country: 'US',
+                name: 'Joe User',
+                postalCode: '75206',
+                stateOrProvince: 'TX'
+            },
+            weight: {
+                measurementValue: '0.5',
+                unitOfMeasure: 'Pounds'
+            }
+        };
 
-            done();
+        newgisticsClient.createPackage(package, function(err, package) {
+            assert.ifError(err);
+            assert.notStrictEqual(package.trackingId, null);
+            assert(package.trackingId.length);
+
+            newgisticsClient.voidTracking(package.trackingId, function(err) {
+                assert.ifError(err);
+
+                done();
+            });
         });
     });
 });
