@@ -1,11 +1,6 @@
-after_success:
-  - npm run coveralls
-
 before_script:
   - npm i -g eslint
   - eslint .
-
-dist: trusty
 
 language: node_js
 
@@ -15,4 +10,5 @@ node_js:
 notifications:
   slack: mediocre:nDgxXo7IeSkxifmFL6UIjcFd
 
-sudo: false
+script:
+  - npm run coveralls
