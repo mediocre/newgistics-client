@@ -9,13 +9,57 @@ function NewgisticsClient(args) {
         shippingapi_url: 'https://shippingapi.ncommerce.com'
     }, args);
 
+    this.closeout = function(merchantId, ngsFacilityIds, callback) {
+        // ngsFacilityIds are optional
+        if (!callback) {
+            callback = ngsFacilityIds;
+        }
+
+        this.getToken(function(err, token) {
+            if (err) {
+                return callback(err);
+            }
+
+            const json = {};
+
+            if (ngsFacilityIds) {
+                json.NgsFacilityIds = ngsFacilityIds;
+            }
+
+            const req = {
+                auth: {
+                    bearer: token.access_token
+                },
+                json,
+                method: 'POST',
+                url: `${opts.shippingapi_url}/v1/closeout/${merchantId}`
+            };
+
+            request(req, function(err, res, body) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (body && body.error) {
+                    return callback(new Error(body.error.message));
+                }
+
+                if (res.statusCode !== 200) {
+                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
+                }
+
+                callback();
+            });
+        });
+    };
+
     this.createPackage = function(package, callback) {
         this.getToken(function(err, token) {
             if (err) {
                 return callback(err);
             }
 
-            var req = {
+            const req = {
                 auth: {
                     bearer: token.access_token
                 },
@@ -40,13 +84,13 @@ function NewgisticsClient(args) {
 
     this.getToken = function(callback) {
         // Try to get the token from memory cache
-        var token = cache.get('newgistics-client-token');
+        const token = cache.get('newgistics-client-token');
 
         if (token) {
             return callback(null, token);
         }
 
-        var req = {
+        const req = {
             formData: {
                 client_id: opts.client_id,
                 client_secret: opts.client_secret,
@@ -75,7 +119,7 @@ function NewgisticsClient(args) {
     };
 
     this.ping = function(callback) {
-        var req = {
+        const req = {
             json: true,
             method: 'GET',
             url: `${opts.shippingapi_url}/ping`

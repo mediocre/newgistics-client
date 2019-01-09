@@ -24,6 +24,23 @@ var newgisticsClient = new NewgisticsClient({
 });
 ```
 
+### newgisticsClient.closeout(merchantId, [ngsFacilityIds,] callback)
+
+Creates a manifest file for all valid labels generated since previous closeout.
+The ngsFacilityIds parameter is optional. If omitted all packages for all facilities will be manifested. If present only packages for the given facilities will be manifested. 
+
+**Example**
+
+```javascript
+newgisticsClient.closeout('1234', function(err) {
+});
+```
+
+```javascript
+newgisticsClient.closeout('1234', ['5678', '0000'], function(err) {
+});
+```
+
 ### newgisticsClient.createPackage(package, callback)
 
 Create a package and obtain a label. Returns ZPL format or URL for label image.

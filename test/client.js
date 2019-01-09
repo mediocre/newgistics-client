@@ -4,6 +4,72 @@ const cache = require('memory-cache');
 
 const NewgisticsClient = require('../client');
 
+describe('NewgisticsClient.closeout', function() {
+    this.timeout(60000);
+
+    it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            client_id: 'invalid'
+        });
+
+        newgisticsClient.closeout('1234', function(err) {
+            assert(err);
+
+            assert.strictEqual(err.message, 'invalid_client');
+
+            done();
+        });
+    });
+
+    it('should return an error for invalid merchant ID', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        newgisticsClient.closeout('1234', function(err) {
+            assert(err);
+
+            assert.strictEqual(err.message, 'Merchant configuration not found');
+
+            done();
+        });
+    });
+
+    it.skip('should closeout for a valid merchant ID', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        newgisticsClient.closeout('1500', function(err) {
+            assert.ifError(err);
+            done();
+        });
+    });
+
+    it.skip('should closeout for a valid merchant ID and specified ngsFacilityIds', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        newgisticsClient.closeout('1500', ['1361'], function(err) {
+            assert.ifError(err);
+            done();
+        });
+    });
+});
+
 describe('NewgisticsClient.createPackage', function() {
     this.timeout(5000);
 
@@ -11,7 +77,7 @@ describe('NewgisticsClient.createPackage', function() {
         // Clear existing token
         cache.del('newgistics-client-token');
 
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
             client_id: 'invalid'
         });
 
@@ -26,7 +92,8 @@ describe('NewgisticsClient.createPackage', function() {
     });
 
     it('should return an error', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
             shippingapi_url: 'invalid'
@@ -42,9 +109,11 @@ describe('NewgisticsClient.createPackage', function() {
     });
 
     it('should return an error', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
         newgisticsClient.createPackage({}, function(err, package) {
@@ -57,12 +126,14 @@ describe('NewgisticsClient.createPackage', function() {
     });
 
     it('should create a package', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        var package = {
+        const package = {
             classOfService: 'Ground',
             clientFacilityId: '8448',
             dimensions: {
@@ -126,7 +197,7 @@ describe('NewgisticsClient.getToken', function() {
         // Clear existing token
         cache.del('newgistics-client-token');
 
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
             authapi_url: 'invalid'
         });
 
@@ -143,7 +214,7 @@ describe('NewgisticsClient.getToken', function() {
         // Clear existing token
         cache.del('newgistics-client-token');
 
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
             client_id: 'invalid'
         });
 
@@ -158,9 +229,11 @@ describe('NewgisticsClient.getToken', function() {
     });
 
     it('should return a valid token', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
         newgisticsClient.getToken(function(err, token) {
@@ -176,9 +249,11 @@ describe('NewgisticsClient.getToken', function() {
     });
 
     it('should return the same token on subsequent calls', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
         // Clear existing token
@@ -202,7 +277,7 @@ describe('NewgisticsClient.ping', function() {
     this.timeout(5000);
 
     it('should return an error', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
             shippingapi_url: 'invalid'
         });
 
@@ -216,10 +291,7 @@ describe('NewgisticsClient.ping', function() {
     });
 
     it('should return a pong', function(done) {
-        var newgisticsClient = new NewgisticsClient({
-            client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
-        });
+        const newgisticsClient = new NewgisticsClient();
 
         newgisticsClient.ping(function(err, pong) {
             assert.ifError(err);
