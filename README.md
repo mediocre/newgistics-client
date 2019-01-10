@@ -121,6 +121,18 @@ newgisticsClient.ping(function(err, pong) {
 });
 ```
 
+### newgisticsClient.voidPackage(packageId, callback)
+
+Void label previously created by package ID.
+
+**Example**
+
+```javascript
+newgisticsClient.voidPackage('myPackageId', function(err) {
+    console.log(err);
+});
+```
+
 ### newgisticsClient.voidTracking(trackingNumber, callback)
 
 Void label previously created by tracking number.

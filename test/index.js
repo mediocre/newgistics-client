@@ -2,7 +2,7 @@ const assert = require('assert');
 
 const cache = require('memory-cache');
 
-const NewgisticsClient = require('../client');
+const NewgisticsClient = require('../index');
 
 describe('NewgisticsClient.closeout', function() {
     this.timeout(60000);
