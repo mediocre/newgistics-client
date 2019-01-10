@@ -13,6 +13,7 @@ function NewgisticsClient(args) {
         // ngsFacilityIds are optional
         if (!callback) {
             callback = ngsFacilityIds;
+            ngsFacilityIds = undefined;
         }
 
         this.getToken(function(err, token) {
