@@ -9,13 +9,57 @@ function NewgisticsClient(args) {
         shippingapi_url: 'https://shippingapi.ncommerce.com'
     }, args);
 
+    this.closeout = function(merchantId, ngsFacilityIds, callback) {
+        // ngsFacilityIds are optional
+        if (!callback) {
+            callback = ngsFacilityIds;
+        }
+
+        this.getToken(function(err, token) {
+            if (err) {
+                return callback(err);
+            }
+
+            const json = {};
+
+            if (ngsFacilityIds) {
+                json.NgsFacilityIds = ngsFacilityIds;
+            }
+
+            const req = {
+                auth: {
+                    bearer: token.access_token
+                },
+                json,
+                method: 'POST',
+                url: `${opts.shippingapi_url}/v1/closeout/${merchantId}`
+            };
+
+            request(req, function(err, res, body) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (body && body.error) {
+                    return callback(new Error(body.error.message));
+                }
+
+                if (res.statusCode !== 200) {
+                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
+                }
+
+                callback();
+            });
+        });
+    };
+
     this.createPackage = function(package, callback) {
         this.getToken(function(err, token) {
             if (err) {
                 return callback(err);
             }
 
-            var req = {
+            const req = {
                 auth: {
                     bearer: token.access_token
                 },
@@ -29,8 +73,12 @@ function NewgisticsClient(args) {
                     return callback(err);
                 }
 
-                if (package.error) {
+                if (package && package.error) {
                     return callback(new Error(package.error.message));
+                }
+
+                if (res.statusCode !== 200) {
+                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
                 }
 
                 callback(null, package.data);
@@ -40,13 +88,13 @@ function NewgisticsClient(args) {
 
     this.getToken = function(callback) {
         // Try to get the token from memory cache
-        var token = cache.get('newgistics-client-token');
+        const token = cache.get('newgistics-client-token');
 
         if (token) {
             return callback(null, token);
         }
 
-        var req = {
+        const req = {
             formData: {
                 client_id: opts.client_id,
                 client_secret: opts.client_secret,
@@ -63,8 +111,12 @@ function NewgisticsClient(args) {
                 return callback(err);
             }
 
-            if (token.error) {
+            if (token && token.error) {
                 return callback(new Error(token.error));
+            }
+
+            if (res.statusCode !== 200) {
+                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
             }
 
             // Put the token in memory cache
@@ -75,14 +127,26 @@ function NewgisticsClient(args) {
     };
 
     this.ping = function(callback) {
-        var req = {
+        const req = {
             json: true,
             method: 'GET',
             url: `${opts.shippingapi_url}/ping`
         };
 
         request(req, function(err, res, pong) {
-            callback(err, pong);
+            if (err) {
+                return callback(err);
+            }
+
+            if (pong && pong.error) {
+                return callback(new Error(pong.error));
+            }
+
+            if (res.statusCode !== 200) {
+                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
+            }
+
+            callback(null, pong);
         });
     };
 }
