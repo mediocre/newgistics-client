@@ -356,7 +356,7 @@ describe('NewgisticsClient.ping', function() {
 
         newgisticsClient.ping(function(err) {
             assert(err);
-            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.message, '500 Internal Server Error');
             assert.strictEqual(err.status, 500);
 
             done();
@@ -376,7 +376,7 @@ describe('NewgisticsClient.ping', function() {
     });
 });
 
-describe('NewgisticsClient.voidTracking', function() {
+describe('NewgisticsClient.voidPackage', function() {
     this.timeout(5000);
 
     it('should return an error', function(done) {
@@ -413,6 +413,23 @@ describe('NewgisticsClient.voidTracking', function() {
         newgisticsClient.voidPackage('invalid', function(err) {
             assert(err);
             assert.strictEqual(err.message, 'Invalid URI "invalid/v1/packages/invalid/void"');
+
+            done();
+        });
+    });
+
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'https://httpstat.us/500#'
+        });
+
+        newgisticsClient.voidPackage('abc', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
 
             done();
         });
@@ -535,6 +552,23 @@ describe('NewgisticsClient.voidTracking', function() {
         newgisticsClient.voidTracking('invalid', function(err) {
             assert(err);
             assert.strictEqual(err.message, 'Invalid URI "invalid/v1/packages/trackingId/invalid/void"');
+
+            done();
+        });
+    });
+
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'https://httpstat.us/500#'
+        });
+
+        newgisticsClient.voidTracking('abc', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
 
             done();
         });

@@ -129,7 +129,7 @@ function NewgisticsClient(args) {
             }
 
             if (res.statusCode !== 200) {
-                return callback(createError(res.statusCode, body && body.error && body.error.message));
+                return callback(createError(res.statusCode, res.body));
             }
 
             callback(null, body);
@@ -146,6 +146,7 @@ function NewgisticsClient(args) {
                 auth: {
                     bearer: token.access_token
                 },
+                json: {},
                 method: 'POST',
                 url: `${opts.shippingapi_url}/v1/packages/${packageId}/void`
             };
@@ -174,6 +175,7 @@ function NewgisticsClient(args) {
                 auth: {
                     bearer: token.access_token
                 },
+                json: {},
                 method: 'POST',
                 url: `${opts.shippingapi_url}/v1/packages/trackingId/${trackingNumber}/void`
             };
