@@ -46,7 +46,7 @@ function NewgisticsClient(args) {
                 }
 
                 if (res.statusCode !== 200) {
-                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
+                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
                 }
 
                 callback();
@@ -79,7 +79,7 @@ function NewgisticsClient(args) {
                 }
 
                 if (res.statusCode !== 200) {
-                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
+                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
                 }
 
                 callback(null, package.data);
@@ -117,7 +117,7 @@ function NewgisticsClient(args) {
             }
 
             if (res.statusCode !== 200) {
-                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
+                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
             }
 
             // Put the token in memory cache
@@ -140,7 +140,7 @@ function NewgisticsClient(args) {
             }
 
             if (res.statusCode !== 200) {
-                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
+                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
             }
 
             callback(null, pong);
