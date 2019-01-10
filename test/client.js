@@ -41,7 +41,7 @@ describe('NewgisticsClient.closeout', function() {
         });
     });
 
-    it.skip('should closeout for a valid merchant ID', function(done) {
+    it('should closeout for a valid merchant ID', function(done) {
         const newgisticsClient = new NewgisticsClient({
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
@@ -49,13 +49,13 @@ describe('NewgisticsClient.closeout', function() {
             shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        newgisticsClient.closeout('1500', function(err) {
+        newgisticsClient.closeout(process.env.NEWGISTICS_MERCHANT_ID, function(err) {
             assert.ifError(err);
             done();
         });
     });
 
-    it.skip('should closeout for a valid merchant ID and specified ngsFacilityIds', function(done) {
+    it('should closeout for a valid merchant ID and specified ngsFacilityIds', function(done) {
         const newgisticsClient = new NewgisticsClient({
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
@@ -63,7 +63,7 @@ describe('NewgisticsClient.closeout', function() {
             shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        newgisticsClient.closeout('1500', ['1361'], function(err) {
+        newgisticsClient.closeout(process.env.NEWGISTICS_MERCHANT_ID, [process.env.NEWGISTICS_FACILITY_ID], function(err) {
             assert.ifError(err);
             done();
         });
@@ -135,7 +135,7 @@ describe('NewgisticsClient.createPackage', function() {
 
         const package = {
             classOfService: 'Ground',
-            clientFacilityId: '8448',
+            clientFacilityId: process.env.NEWGISTICS_CLIENT_FACILITY_ID,
             dimensions: {
                 height: {
                     measurementValue: '1',
@@ -151,7 +151,7 @@ describe('NewgisticsClient.createPackage', function() {
                     unitOfMeasure: 'Inches'
                 }
             },
-            ngsFacilityId: '1361',
+            ngsFacilityId: process.env.NEWGISTICS_FACILITY_ID,
             pricePackage: true,
             returnAddress: {
                 address1: '4717 Plano Parkway',
