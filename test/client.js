@@ -446,6 +446,7 @@ describe('NewgisticsClient.voidPackage', function() {
         newgisticsClient.voidPackage('invalid', function(err) {
             assert(err);
             assert.strictEqual(err.status, 400);
+            assert.strictEqual(err.message, 'Please provide valid PackageId.');
 
             done();
         });
@@ -582,9 +583,10 @@ describe('NewgisticsClient.voidTracking', function() {
             shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        newgisticsClient.voidTracking('invalid', function(err) {
+        newgisticsClient.voidTracking('\n', function(err) {
             assert(err);
-            assert.strictEqual(err.status, 404);
+            assert.strictEqual(err.status, 400);
+            assert.strictEqual(err.message, 'Please provide valid Tracking Id.');
 
             done();
         });
