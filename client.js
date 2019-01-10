@@ -45,7 +45,7 @@ function NewgisticsClient(args) {
                 }
 
                 if (res.statusCode !== 200) {
-                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
+                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
                 }
 
                 callback();
@@ -73,8 +73,12 @@ function NewgisticsClient(args) {
                     return callback(err);
                 }
 
-                if (package.error) {
+                if (package && package.error) {
                     return callback(new Error(package.error.message));
+                }
+
+                if (res.statusCode !== 200) {
+                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
                 }
 
                 callback(null, package.data);
@@ -107,8 +111,12 @@ function NewgisticsClient(args) {
                 return callback(err);
             }
 
-            if (token.error) {
+            if (token && token.error) {
                 return callback(new Error(token.error));
+            }
+
+            if (res.statusCode !== 200) {
+                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
             }
 
             // Put the token in memory cache
@@ -126,7 +134,19 @@ function NewgisticsClient(args) {
         };
 
         request(req, function(err, res, pong) {
-            callback(err, pong);
+            if (err) {
+                return callback(err);
+            }
+
+            if (pong && pong.error) {
+                return callback(new Error(pong.error));
+            }
+
+            if (res.statusCode !== 200) {
+                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
+            }
+
+            callback(null, pong);
         });
     };
 }
