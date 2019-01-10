@@ -33,7 +33,6 @@ describe('NewgisticsClient.closeout', function() {
 
         newgisticsClient.closeout('1234', function(err) {
             assert(err);
-
             assert.strictEqual(err.message, 'invalid_client');
 
             done();
@@ -50,8 +49,8 @@ describe('NewgisticsClient.closeout', function() {
 
         newgisticsClient.closeout('1234', function(err) {
             assert(err);
-
             assert.strictEqual(err.message, 'Merchant configuration not found');
+            assert.strictEqual(err.status, 400);
 
             done();
         });
@@ -67,8 +66,8 @@ describe('NewgisticsClient.closeout', function() {
 
         newgisticsClient.closeout('1234', function(err) {
             assert(err);
-
-            assert.strictEqual(err.message, '500 POST https://httpstat.us/500#/v1/closeout/1234 500 Internal Server Error');
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
 
             done();
         });
@@ -116,8 +115,8 @@ describe('NewgisticsClient.createPackage', function() {
 
         newgisticsClient.createPackage({}, function(err, package) {
             assert(err);
-
             assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(err.status, 400);
             assert.strictEqual(package, undefined);
 
             done();
@@ -134,7 +133,6 @@ describe('NewgisticsClient.createPackage', function() {
 
         newgisticsClient.createPackage({}, function(err, package) {
             assert(err);
-
             assert.strictEqual(package, undefined);
 
             done();
@@ -151,7 +149,6 @@ describe('NewgisticsClient.createPackage', function() {
 
         newgisticsClient.createPackage({}, function(err, package) {
             assert(err);
-
             assert.strictEqual(package, undefined);
 
             done();
@@ -168,8 +165,8 @@ describe('NewgisticsClient.createPackage', function() {
 
         newgisticsClient.createPackage({}, function(err) {
             assert(err);
-
-            assert.strictEqual(err.message, '500 POST https://httpstat.us/500#/v1/packages 500 Internal Server Error');
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
 
             done();
         });
@@ -255,7 +252,6 @@ describe('NewgisticsClient.getToken', function() {
 
         newgisticsClient.getToken(function(err, token) {
             assert(err);
-
             assert.strictEqual(token, undefined);
 
             done();
@@ -269,8 +265,8 @@ describe('NewgisticsClient.getToken', function() {
 
         newgisticsClient.getToken(function(err, token) {
             assert(err);
-
             assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(err.status, 400);
             assert.strictEqual(token, undefined);
 
             done();
@@ -287,8 +283,8 @@ describe('NewgisticsClient.getToken', function() {
 
         newgisticsClient.getToken(function(err) {
             assert(err);
-
-            assert.strictEqual(err.message, '500 POST https://httpstat.us/500#/connect/token 500 Internal Server Error');
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
 
             done();
         });
@@ -304,7 +300,6 @@ describe('NewgisticsClient.getToken', function() {
 
         newgisticsClient.getToken(function(err, token) {
             assert.ifError(err);
-
             assert(token);
             assert(token.access_token);
             assert(token.expires_in);
@@ -327,7 +322,6 @@ describe('NewgisticsClient.getToken', function() {
 
             newgisticsClient.getToken(function(err, token2) {
                 assert.ifError(err);
-
                 assert.deepStrictEqual(token1, token2);
 
                 done();
@@ -346,7 +340,6 @@ describe('NewgisticsClient.ping', function() {
 
         newgisticsClient.ping(function(err, pong) {
             assert(err);
-
             assert.strictEqual(pong, undefined);
 
             done();
@@ -363,8 +356,8 @@ describe('NewgisticsClient.ping', function() {
 
         newgisticsClient.ping(function(err) {
             assert(err);
-
-            assert.strictEqual(err.message, '500 GET https://httpstat.us/500#/ping 500 Internal Server Error');
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
 
             done();
         });
@@ -390,12 +383,17 @@ describe('NewgisticsClient.voidTracking', function() {
         // Clear existing token
         cache.del('newgistics-client-token');
 
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: 'invalid',
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
             shippingapi_url: 'invalid'
         });
 
-        newgisticsClient.voidTracking('invalid', function(err) {
+        newgisticsClient.voidPackage('invalid', function(err) {
             assert(err);
+            assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(err.status, 400);
 
             done();
         });
@@ -403,54 +401,50 @@ describe('NewgisticsClient.voidTracking', function() {
 
     it('should return an error', function(done) {
         // Clear existing token
-        var newgisticsClient = new NewgisticsClient({
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
             shippingapi_url: 'invalid'
         });
 
-        newgisticsClient.voidTracking('invalid', function(err) {
+        newgisticsClient.voidPackage('invalid', function(err) {
             assert(err);
+            assert.strictEqual(err.message, 'Invalid URI "invalid/v1/packages/invalid/void"');
 
             done();
         });
     });
 
-    it('should return an error', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+    it('should return an error for an invalid package ID', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        newgisticsClient.voidTracking('\n', function(err) {
+        newgisticsClient.voidPackage('invalid', function(err) {
             assert(err);
-
-            done();
-        });
-    });
-
-    it('should not return an error for an invalid tracking number', function(done) {
-        var newgisticsClient = new NewgisticsClient({
-            client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
-        });
-
-        newgisticsClient.voidTracking('invalid', function(err) {
-            assert.ifError(err);
+            assert.strictEqual(err.status, 400);
 
             done();
         });
     });
 
     it('should void tracking', function(done) {
-        var newgisticsClient = new NewgisticsClient({
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
-            client_secret: process.env.NEWGISTICS_CLIENT_SECRET
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        var package = {
+        const package = {
             classOfService: 'Ground',
-            clientFacilityId: '8448',
+            clientFacilityId: process.env.NEWGISTICS_CLIENT_FACILITY_ID,
             dimensions: {
                 height: {
                     measurementValue: '1',
@@ -466,7 +460,7 @@ describe('NewgisticsClient.voidTracking', function() {
                     unitOfMeasure: 'Inches'
                 }
             },
-            ngsFacilityId: '1361',
+            ngsFacilityId: process.env.NEWGISTICS_FACILITY_ID,
             pricePackage: true,
             returnAddress: {
                 address1: '4717 Plano Parkway',
@@ -494,8 +488,128 @@ describe('NewgisticsClient.voidTracking', function() {
 
         newgisticsClient.createPackage(package, function(err, package) {
             assert.ifError(err);
-            assert.notStrictEqual(package.trackingId, null);
-            assert(package.trackingId.length);
+
+            newgisticsClient.voidPackage(package.packageId, function(err) {
+                assert.ifError(err);
+
+                done();
+            });
+        });
+    });
+});
+
+describe('NewgisticsClient.voidTracking', function() {
+    this.timeout(5000);
+
+    it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: 'invalid',
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.voidTracking('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(err.status, 400);
+
+            done();
+        });
+    });
+
+    it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.voidTracking('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Invalid URI "invalid/v1/packages/trackingId/invalid/void"');
+
+            done();
+        });
+    });
+
+    it('should return an error for an invalid tracking number', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        newgisticsClient.voidTracking('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.status, 404);
+
+            done();
+        });
+    });
+
+    it('should void tracking', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        const package = {
+            classOfService: 'Ground',
+            clientFacilityId: process.env.NEWGISTICS_CLIENT_FACILITY_ID,
+            dimensions: {
+                height: {
+                    measurementValue: '1',
+                    unitOfMeasure: 'Inches'
+                },
+                isRectangular: true,
+                length: {
+                    measurementValue: '6',
+                    unitOfMeasure: 'Inches'
+                },
+                width: {
+                    measurementValue: '4',
+                    unitOfMeasure: 'Inches'
+                }
+            },
+            ngsFacilityId: process.env.NEWGISTICS_FACILITY_ID,
+            pricePackage: true,
+            returnAddress: {
+                address1: '4717 Plano Parkway',
+                address2: 'Suite 130',
+                city: 'Carrollton',
+                country: 'US',
+                isResidential: false,
+                name: 'A Mediocre Corporation',
+                postalCode: '75010',
+                stateOrProvince: 'TX'
+            },
+            shipToAddress: {
+                address1: '5531 Willis Ave',
+                city: 'Dallas',
+                country: 'US',
+                name: 'Joe User',
+                postalCode: '75206',
+                stateOrProvince: 'TX'
+            },
+            weight: {
+                measurementValue: '0.5',
+                unitOfMeasure: 'Pounds'
+            }
+        };
+
+        newgisticsClient.createPackage(package, function(err, package) {
+            assert.ifError(err);
 
             newgisticsClient.voidTracking(package.trackingId, function(err) {
                 assert.ifError(err);

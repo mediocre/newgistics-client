@@ -1,4 +1,5 @@
 const cache = require('memory-cache');
+const createError = require('http-errors');
 const request = require('request');
 
 function NewgisticsClient(args) {
@@ -41,12 +42,8 @@ function NewgisticsClient(args) {
                     return callback(err);
                 }
 
-                if (body && body.error) {
-                    return callback(new Error(body.error.message));
-                }
-
                 if (res.statusCode !== 200) {
-                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
+                    return callback(createError(res.statusCode, body && body.error && body.error.message));
                 }
 
                 callback();
@@ -69,20 +66,16 @@ function NewgisticsClient(args) {
                 url: `${opts.shippingapi_url}/v1/packages`
             };
 
-            request(req, function(err, res, package) {
+            request(req, function(err, res, body) {
                 if (err) {
                     return callback(err);
                 }
 
-                if (package && package.error) {
-                    return callback(new Error(package.error.message));
-                }
-
                 if (res.statusCode !== 200) {
-                    return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
+                    return callback(createError(res.statusCode, body && body.error && body.error.message));
                 }
 
-                callback(null, package.data);
+                callback(null, body.data);
             });
         });
     };
@@ -107,23 +100,19 @@ function NewgisticsClient(args) {
             url: `${opts.authapi_url}/connect/token`
         };
 
-        request(req, function(err, res, token) {
+        request(req, function(err, res, body) {
             if (err) {
                 return callback(err);
             }
 
-            if (token && token.error) {
-                return callback(new Error(token.error));
-            }
-
             if (res.statusCode !== 200) {
-                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
+                return callback(createError(res.statusCode, body && body.error));
             }
 
             // Put the token in memory cache
-            cache.put('newgistics-client-token', token, token.expires_in / 2);
+            cache.put('newgistics-client-token', body, body.expires_in / 2);
 
-            callback(null, token);
+            callback(null, body);
         });
     };
 
@@ -134,16 +123,44 @@ function NewgisticsClient(args) {
             url: `${opts.shippingapi_url}/ping`
         };
 
-        request(req, function(err, res, pong) {
+        request(req, function(err, res, body) {
             if (err) {
                 return callback(err);
             }
 
             if (res.statusCode !== 200) {
-                return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body}`));
+                return callback(createError(res.statusCode, body && body.error && body.error.message));
             }
 
-            callback(null, pong);
+            callback(null, body);
+        });
+    };
+
+    this.voidPackage = function(packageId, callback) {
+        this.getToken(function(err, token) {
+            if (err) {
+                return callback(err);
+            }
+
+            const req = {
+                auth: {
+                    bearer: token.access_token
+                },
+                method: 'POST',
+                url: `${opts.shippingapi_url}/v1/packages/${packageId}/void`
+            };
+
+            request(req, function(err, res, body) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (res.statusCode !== 200) {
+                    return callback(createError(res.statusCode, body && body.error && body.error.message));
+                }
+
+                callback();
+            });
         });
     };
 
@@ -153,24 +170,21 @@ function NewgisticsClient(args) {
                 return callback(err);
             }
 
-            var req = {
+            const req = {
                 auth: {
                     bearer: token.access_token
-                },
-                formData: {
-                    trackingId: trackingNumber
                 },
                 method: 'POST',
                 url: `${opts.shippingapi_url}/v1/packages/trackingId/${trackingNumber}/void`
             };
 
-            request(req, function(err, res) {
+            request(req, function(err, res, body) {
                 if (err) {
                     return callback(err);
                 }
 
-                if (res.statusCode !== 200 && res.statusCode !== 404) {
-                    return callback(new Error(res.statusCode));
+                if (res.statusCode !== 200) {
+                    return callback(createError(res.statusCode, body && body.error && body.error.message));
                 }
 
                 callback();
