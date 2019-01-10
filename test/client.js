@@ -8,6 +8,22 @@ describe('NewgisticsClient.closeout', function() {
     this.timeout(60000);
 
     it('should return an error', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.closeout(1234, function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Invalid URI "invalid/v1/closeout/1234"');
+
+            done();
+        });
+    });
+
+    it('should return an error for invalid client', function(done) {
         // Clear existing token
         cache.del('newgistics-client-token');
 
@@ -36,6 +52,23 @@ describe('NewgisticsClient.closeout', function() {
             assert(err);
 
             assert.strictEqual(err.message, 'Merchant configuration not found');
+
+            done();
+        });
+    });
+
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'https://httpstat.us/500#'
+        });
+
+        newgisticsClient.closeout('1234', function(err) {
+            assert(err);
+
+            assert.strictEqual(err.message, '500 POST https://httpstat.us/500#/v1/closeout/1234 500 Internal Server Error');
 
             done();
         });
@@ -125,6 +158,23 @@ describe('NewgisticsClient.createPackage', function() {
         });
     });
 
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'https://httpstat.us/500#'
+        });
+
+        newgisticsClient.createPackage({}, function(err) {
+            assert(err);
+
+            assert.strictEqual(err.message, '500 POST https://httpstat.us/500#/v1/packages 500 Internal Server Error');
+
+            done();
+        });
+    });
+
     it('should create a package', function(done) {
         const newgisticsClient = new NewgisticsClient({
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
@@ -193,10 +243,12 @@ describe('NewgisticsClient.createPackage', function() {
 describe('NewgisticsClient.getToken', function() {
     this.timeout(5000);
 
-    it('should return an error', function(done) {
+    beforeEach(function() {
         // Clear existing token
         cache.del('newgistics-client-token');
+    });
 
+    it('should return an error for invalid authapi_url', function(done) {
         const newgisticsClient = new NewgisticsClient({
             authapi_url: 'invalid'
         });
@@ -211,9 +263,6 @@ describe('NewgisticsClient.getToken', function() {
     });
 
     it('should return an invalid_client error', function(done) {
-        // Clear existing token
-        cache.del('newgistics-client-token');
-
         const newgisticsClient = new NewgisticsClient({
             client_id: 'invalid'
         });
@@ -223,6 +272,23 @@ describe('NewgisticsClient.getToken', function() {
 
             assert.strictEqual(err.message, 'invalid_client');
             assert.strictEqual(token, undefined);
+
+            done();
+        });
+    });
+
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: 'https://httpstat.us/500#',
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        newgisticsClient.getToken(function(err) {
+            assert(err);
+
+            assert.strictEqual(err.message, '500 POST https://httpstat.us/500#/connect/token 500 Internal Server Error');
 
             done();
         });
@@ -256,9 +322,6 @@ describe('NewgisticsClient.getToken', function() {
             shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        // Clear existing token
-        cache.del('newgistics-client-token');
-
         newgisticsClient.getToken(function(err, token1) {
             assert.ifError(err);
 
@@ -276,7 +339,7 @@ describe('NewgisticsClient.getToken', function() {
 describe('NewgisticsClient.ping', function() {
     this.timeout(5000);
 
-    it('should return an error', function(done) {
+    it('should return an error for invalid shippingapi_url', function(done) {
         const newgisticsClient = new NewgisticsClient({
             shippingapi_url: 'invalid'
         });
@@ -285,6 +348,23 @@ describe('NewgisticsClient.ping', function() {
             assert(err);
 
             assert.strictEqual(pong, undefined);
+
+            done();
+        });
+    });
+
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'https://httpstat.us/500#'
+        });
+
+        newgisticsClient.ping(function(err) {
+            assert(err);
+
+            assert.strictEqual(err.message, '500 GET https://httpstat.us/500#/ping 500 Internal Server Error');
 
             done();
         });

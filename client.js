@@ -139,10 +139,6 @@ function NewgisticsClient(args) {
                 return callback(err);
             }
 
-            if (pong && pong.error) {
-                return callback(new Error(pong.error));
-            }
-
             if (res.statusCode !== 200) {
                 return callback(new Error(`${res.statusCode} ${res.request.method} ${res.request.href} ${res.body || ''}`.trim()));
             }
