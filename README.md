@@ -120,3 +120,15 @@ newgisticsClient.ping(function(err, pong) {
     console.log(pong);
 });
 ```
+
+### newgisticsClient.voidTracking(trackingNumber, callback)
+
+Void label previously created by tracking number.
+
+**Example**
+
+```javascript
+newgisticsClient.voidTracking('myTrackingNumber', function(err) {
+    console.log(err);
+});
+```
