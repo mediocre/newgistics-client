@@ -121,6 +121,30 @@ newgisticsClient.ping(function(err, pong) {
 });
 ```
 
+### newgisticsClient.reprintPackage(packageId, callback)
+
+Reprint a label previously created by package ID.
+
+**Example**
+
+```javascript
+newgisticsClient.reprintPackage('packageId', function(err, package) {
+    console.log(package);
+});
+```
+
+### newgisticsClient.reprintTracking(trackingNumber, callback)
+
+Reprint a label previously created by tracking number.
+
+**Example**
+
+```javascript
+newgisticsClient.reprintTracking('trackingNumber', function(err, package) {
+    console.log(package);
+});
+```
+
 ### newgisticsClient.voidPackage(packageId, callback)
 
 Void label previously created by package ID.
@@ -128,7 +152,7 @@ Void label previously created by package ID.
 **Example**
 
 ```javascript
-newgisticsClient.voidPackage('myPackageId', function(err) {
+newgisticsClient.voidPackage('packageId', function(err) {
     console.log(err);
 });
 ```
@@ -140,7 +164,7 @@ Void label previously created by tracking number.
 **Example**
 
 ```javascript
-newgisticsClient.voidTracking('myTrackingNumber', function(err) {
+newgisticsClient.voidTracking('trackingNumber', function(err) {
     console.log(err);
 });
 ```
