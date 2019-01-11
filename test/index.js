@@ -376,6 +376,294 @@ describe('NewgisticsClient.ping', function() {
     });
 });
 
+describe('NewgisticsClient.reprintPackage', function() {
+    this.timeout(5000);
+
+    it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: 'invalid',
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.reprintPackage('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(err.status, 400);
+
+            done();
+        });
+    });
+
+    it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.reprintPackage('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Invalid URI "invalid/v1/packages/invalid/reprint"');
+
+            done();
+        });
+    });
+
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'https://httpstat.us/500#'
+        });
+
+        newgisticsClient.reprintPackage('abc', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
+
+            done();
+        });
+    });
+
+    it('should return an error for an invalid package ID', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        newgisticsClient.reprintPackage('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.status, 400);
+            assert.strictEqual(err.message, 'Please provide valid PackageId.');
+
+            done();
+        });
+    });
+
+    it('should reprint package', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        const package = {
+            classOfService: 'Ground',
+            clientFacilityId: process.env.NEWGISTICS_CLIENT_FACILITY_ID,
+            dimensions: {
+                height: {
+                    measurementValue: '1',
+                    unitOfMeasure: 'Inches'
+                },
+                isRectangular: true,
+                length: {
+                    measurementValue: '6',
+                    unitOfMeasure: 'Inches'
+                },
+                width: {
+                    measurementValue: '4',
+                    unitOfMeasure: 'Inches'
+                }
+            },
+            ngsFacilityId: process.env.NEWGISTICS_FACILITY_ID,
+            pricePackage: true,
+            returnAddress: {
+                address1: '4717 Plano Parkway',
+                address2: 'Suite 130',
+                city: 'Carrollton',
+                country: 'US',
+                isResidential: false,
+                name: 'A Mediocre Corporation',
+                postalCode: '75010',
+                stateOrProvince: 'TX'
+            },
+            shipToAddress: {
+                address1: '5531 Willis Ave',
+                city: 'Dallas',
+                country: 'US',
+                name: 'Joe User',
+                postalCode: '75206',
+                stateOrProvince: 'TX'
+            },
+            weight: {
+                measurementValue: '0.5',
+                unitOfMeasure: 'Pounds'
+            }
+        };
+
+        newgisticsClient.createPackage(package, function(err, package) {
+            assert.ifError(err);
+
+            newgisticsClient.reprintPackage(package.packageId, function(err, package) {
+                assert.ifError(err);
+
+                assert(package.packageId);
+                assert(package.trackingId);
+                assert(package.labels[0].labelData);
+
+                done();
+            });
+        });
+    });
+});
+
+describe('NewgisticsClient.reprintTracking', function() {
+    this.timeout(5000);
+
+    it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: 'invalid',
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.reprintTracking('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'invalid_client');
+            assert.strictEqual(err.status, 400);
+
+            done();
+        });
+    });
+
+    it('should return an error', function(done) {
+        // Clear existing token
+        cache.del('newgistics-client-token');
+
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'invalid'
+        });
+
+        newgisticsClient.reprintTracking('invalid', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Invalid URI "invalid/v1/packages/trackingId/invalid/reprint"');
+
+            done();
+        });
+    });
+
+    it('should return an error for non 200 status code', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: 'https://httpstat.us/500#'
+        });
+
+        newgisticsClient.reprintTracking('abc', function(err) {
+            assert(err);
+            assert.strictEqual(err.message, 'Internal Server Error');
+            assert.strictEqual(err.status, 500);
+
+            done();
+        });
+    });
+
+    it('should return an error for an invalid tracking number', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        newgisticsClient.reprintTracking('\n', function(err) {
+            assert(err);
+            assert.strictEqual(err.status, 400);
+            assert.strictEqual(err.message, 'Please provide valid Tracking Id.');
+
+            done();
+        });
+    });
+
+    it('should reprint tracking', function(done) {
+        const newgisticsClient = new NewgisticsClient({
+            authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
+            client_id: process.env.NEWGISTICS_CLIENT_ID,
+            client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
+            shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
+        });
+
+        const package = {
+            classOfService: 'Ground',
+            clientFacilityId: process.env.NEWGISTICS_CLIENT_FACILITY_ID,
+            dimensions: {
+                height: {
+                    measurementValue: '1',
+                    unitOfMeasure: 'Inches'
+                },
+                isRectangular: true,
+                length: {
+                    measurementValue: '6',
+                    unitOfMeasure: 'Inches'
+                },
+                width: {
+                    measurementValue: '4',
+                    unitOfMeasure: 'Inches'
+                }
+            },
+            ngsFacilityId: process.env.NEWGISTICS_FACILITY_ID,
+            pricePackage: true,
+            returnAddress: {
+                address1: '4717 Plano Parkway',
+                address2: 'Suite 130',
+                city: 'Carrollton',
+                country: 'US',
+                isResidential: false,
+                name: 'A Mediocre Corporation',
+                postalCode: '75010',
+                stateOrProvince: 'TX'
+            },
+            shipToAddress: {
+                address1: '5531 Willis Ave',
+                city: 'Dallas',
+                country: 'US',
+                name: 'Joe User',
+                postalCode: '75206',
+                stateOrProvince: 'TX'
+            },
+            weight: {
+                measurementValue: '0.5',
+                unitOfMeasure: 'Pounds'
+            }
+        };
+
+        newgisticsClient.createPackage(package, function(err, package) {
+            assert.ifError(err);
+
+            newgisticsClient.reprintTracking(package.trackingId, function(err) {
+                assert.ifError(err);
+
+                assert(package.packageId);
+                assert(package.trackingId);
+                assert(package.labels[0].labelData);
+
+                done();
+            });
+        });
+    });
+});
+
 describe('NewgisticsClient.voidPackage', function() {
     this.timeout(5000);
 

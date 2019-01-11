@@ -136,6 +136,64 @@ function NewgisticsClient(args) {
         });
     };
 
+    this.reprintPackage = function(packageId, callback) {
+        this.getToken(function(err, token) {
+            if (err) {
+                return callback(err);
+            }
+
+            const req = {
+                auth: {
+                    bearer: token.access_token
+                },
+                json: {},
+                method: 'POST',
+                url: `${opts.shippingapi_url}/v1/packages/${packageId}/reprint`
+            };
+
+            request(req, function(err, res, body) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (res.statusCode !== 200) {
+                    return callback(createError(res.statusCode, body && body.error && body.error.message));
+                }
+
+                callback(null, body.data);
+            });
+        });
+    };
+
+    this.reprintTracking = function(trackingNumber, callback) {
+        this.getToken(function(err, token) {
+            if (err) {
+                return callback(err);
+            }
+
+            const req = {
+                auth: {
+                    bearer: token.access_token
+                },
+                json: {},
+                method: 'POST',
+                url: `${opts.shippingapi_url}/v1/packages/trackingId/${trackingNumber}/reprint`
+            };
+
+            request(req, function(err, res, body) {
+                if (err) {
+                    return callback(err);
+                }
+
+                if (res.statusCode !== 200) {
+                    return callback(createError(res.statusCode, body && body.error && body.error.message));
+                }
+
+                callback(null, body.data);
+            });
+        });
+    };
+
     this.voidPackage = function(packageId, callback) {
         this.getToken(function(err, token) {
             if (err) {
