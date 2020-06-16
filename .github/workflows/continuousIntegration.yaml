@@ -34,18 +34,10 @@ jobs:
     - name: Run tests
       run: npm test
       env:
-        FEDEX_ACCOUNT_NUMBER: ${{ secrets.FEDEX_ACCOUNT_NUMBER }}
-        FEDEX_ENVIRONMENT: ${{ secrets.FEDEX_ENVIRONMENT }}
-        FEDEX_KEY: ${{ secrets.FEDEX_KEY }}
-        FEDEX_METER_NUMBER: ${{ secrets.FEDEX_METER_NUMBER }}
-        FEDEX_PASSWORD: ${{ secrets.FEDEX_PASSWORD }}
-        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        PITNEY_BOWES_API_KEY: ${{ secrets.PITNEY_BOWES_API_KEY }}
-        PITNEY_BOWES_API_SECRET: ${{ secrets.PITNEY_BOWES_API_SECRET }}
-        UPS_ACCESS_KEY: ${{ secrets.UPS_ACCESS_KEY }}
-        UPS_PASSWORD: ${{ secrets.UPS_PASSWORD }}
-        UPS_USERNAME: ${{ secrets.UPS_USERNAME }}
-        USPS_USERID: ${{ secrets.USPS_USERID }}
+        NEWGISTICS_AUTHAPI_URL: ${{ secrets.NEWGISTICS_AUTHAPI_URL }}
+        NEWGISTICS_CLIENT_ID: ${{ secrets.NEWGISTICS_CLIENT_ID }}
+        NEWGISTICS_CLIENT_SECRET: ${{ secrets.NEWGISTICS_CLIENT_SECRET }}
+        NEWGISTICS_SHIPPINGAPI_URL: ${{ secrets.NEWGISTICS_SHIPPINGAPI_URL }}
 
   coverage:
     runs-on: ubuntu-latest
@@ -60,32 +52,17 @@ jobs:
       uses: actions/checkout@v2
       with:
         persist-credentials: false
-        ssh-key: ${{ secrets.MERCATALYST_DEPLOY_KEY }}
 
     - name: Run npm install
       run: npm install
 
-    - name: Setup Redis v${{ matrix.redis-version }}
-      uses: supercharge/redis-github-action@1.1.0
-      with:
-        redis-version: 4
-
     - name: Run coverage report
       run: npm run coveralls
       env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        FEDEX_ACCOUNT_NUMBER: ${{ secrets.FEDEX_ACCOUNT_NUMBER }}
-        FEDEX_ENVIRONMENT: ${{ secrets.FEDEX_ENVIRONMENT }}
-        FEDEX_KEY: ${{ secrets.FEDEX_KEY }}
-        FEDEX_METER_NUMBER: ${{ secrets.FEDEX_METER_NUMBER }}
-        FEDEX_PASSWORD: ${{ secrets.FEDEX_PASSWORD }}
-        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        PITNEY_BOWES_API_KEY: ${{ secrets.PITNEY_BOWES_API_KEY }}
-        PITNEY_BOWES_API_SECRET: ${{ secrets.PITNEY_BOWES_API_SECRET }}
-        UPS_ACCESS_KEY: ${{ secrets.UPS_ACCESS_KEY }}
-        UPS_PASSWORD: ${{ secrets.UPS_PASSWORD }}
-        UPS_USERNAME: ${{ secrets.UPS_USERNAME }}
-        USPS_USERID: ${{ secrets.USPS_USERID }}
+        NEWGISTICS_AUTHAPI_URL: ${{ secrets.NEWGISTICS_AUTHAPI_URL }}
+        NEWGISTICS_CLIENT_ID: ${{ secrets.NEWGISTICS_CLIENT_ID }}
+        NEWGISTICS_CLIENT_SECRET: ${{ secrets.NEWGISTICS_CLIENT_SECRET }}
+        NEWGISTICS_SHIPPINGAPI_URL: ${{ secrets.NEWGISTICS_SHIPPINGAPI_URL }}
 
   notify:
     needs: [test, coverage]
