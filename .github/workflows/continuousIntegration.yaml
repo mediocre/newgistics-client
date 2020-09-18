@@ -4,25 +4,21 @@ on: [push]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.13.0]
+    runs-on: ubuntu-18.04
 
     steps:
-    - name: Setup Node ${{ matrix.node-version }}
+    - name: Setup Node 14.10.1
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 14.10.1
 
     - name: Checkout from Git
       uses: actions/checkout@v2
       with:
         persist-credentials: false
 
-    - name: Install ESLint and Mocha
-      run: npm install -g eslint mocha
+    - name: Install ESLint
+      run: npm install -g eslint
 
     - name: Run ESLint
       run: eslint .
@@ -30,9 +26,10 @@ jobs:
     - name: Run npm install
       run: npm install
 
-    - name: Run tests
+    - name: Run tests and coverage
       run: npm run coveralls
       env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         NEWGISTICS_AUTHAPI_URL: ${{ secrets.NEWGISTICS_AUTHAPI_URL }}
         NEWGISTICS_CLIENT_FACILITY_ID: $${{ secrets.NEWGISTICS_CLIENT_FACILITY_ID }}
         NEWGISTICS_CLIENT_ID: ${{ secrets.NEWGISTICS_CLIENT_ID }}
@@ -41,7 +38,6 @@ jobs:
         NEWGISTICS_SHIPPINGAPI_URL: ${{ secrets.NEWGISTICS_SHIPPINGAPI_URL }}
 
     - name: Notify Slack
-      if: always()
       uses: homoluctus/slatify@master
       with:
         type: ${{ job.status }}
