@@ -25,7 +25,7 @@
   },
   "scripts": {
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
-    "test": "mocha --exit --reporter spec test"
+    "test": "mocha --exit --reporter spec test/* --timeout 3000"
   },
   "version": "1.0.1"
 }
