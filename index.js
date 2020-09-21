@@ -71,6 +71,8 @@ function NewgisticsClient(args) {
                     return callback(err);
                 }
 
+                console.log(body);
+
                 if (res.statusCode !== 200) {
                     return callback(createError(res.statusCode, body && body.error && body.error.message));
                 }
