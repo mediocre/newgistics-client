@@ -24,7 +24,7 @@
     "url": "https://github.com/mediocre/newgistics-client.git"
   },
   "scripts": {
-    "coveralls": "nyc npm test && nyc report --report=text-lcov | coveralls",
+    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "test": "mocha --exit --reporter spec test"
   },
   "version": "1.0.1"
