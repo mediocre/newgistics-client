@@ -67,11 +67,11 @@ function NewgisticsClient(args) {
             };
 
             request(req, function(err, res, body) {
+                console.log(body);
+
                 if (err) {
                     return callback(err);
                 }
-
-                console.log(body);
 
                 if (res.statusCode !== 200) {
                     return callback(createError(res.statusCode, body && body.error && body.error.message));
