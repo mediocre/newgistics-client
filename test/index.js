@@ -47,7 +47,7 @@ describe('NewgisticsClient.closeout', function() {
             shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
         });
 
-        newgisticsClient.closeout('1234', function(err) {
+        newgisticsClient.closeout('1111', function(err) {
             assert(err);
             assert.strictEqual(err.message, 'Merchant configuration not found');
             assert.strictEqual(err.status, 400);
@@ -61,10 +61,10 @@ describe('NewgisticsClient.closeout', function() {
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
-            shippingapi_url: 'https://httpstat.us/500#'
+            shippingapi_url: 'https://httpbin.org/status/500#'
         });
 
-        newgisticsClient.closeout('1234', function(err) {
+        newgisticsClient.closeout('1111', function(err) {
             assert(err);
             assert.strictEqual(err.message, 'Internal Server Error');
             assert.strictEqual(err.status, 500);
@@ -160,7 +160,7 @@ describe('NewgisticsClient.createPackage', function() {
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
-            shippingapi_url: 'https://httpstat.us/500#'
+            shippingapi_url: 'https://httpbin.org/status/500#'
         });
 
         newgisticsClient.createPackage({}, function(err) {
@@ -275,7 +275,7 @@ describe('NewgisticsClient.getToken', function() {
 
     it('should return an error for non 200 status code', function(done) {
         const newgisticsClient = new NewgisticsClient({
-            authapi_url: 'https://httpstat.us/500#',
+            authapi_url: 'https://httpbin.org/status/500#',
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
             shippingapi_url: process.env.NEWGISTICS_SHIPPINGAPI_URL
@@ -351,12 +351,12 @@ describe('NewgisticsClient.ping', function() {
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
-            shippingapi_url: 'https://httpstat.us/500#'
+            shippingapi_url: 'https://httpbin.org/status/500#'
         });
 
         newgisticsClient.ping(function(err) {
             assert(err);
-            assert.strictEqual(err.message, '500 Internal Server Error');
+            assert.strictEqual(err.message && err.message.includes('Internal Server Error'), true);
             assert.strictEqual(err.status, 500);
 
             done();
@@ -423,7 +423,7 @@ describe('NewgisticsClient.reprintPackage', function() {
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
-            shippingapi_url: 'https://httpstat.us/500#'
+            shippingapi_url: 'https://httpbin.org/status/500#'
         });
 
         newgisticsClient.reprintPackage('abc', function(err) {
@@ -567,7 +567,7 @@ describe('NewgisticsClient.reprintTracking', function() {
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
-            shippingapi_url: 'https://httpstat.us/500#'
+            shippingapi_url: 'https://httpbin.org/status/500#'
         });
 
         newgisticsClient.reprintTracking('abc', function(err) {
@@ -711,7 +711,7 @@ describe('NewgisticsClient.voidPackage', function() {
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
-            shippingapi_url: 'https://httpstat.us/500#'
+            shippingapi_url: 'https://httpbin.org/status/500#'
         });
 
         newgisticsClient.voidPackage('abc', function(err) {
@@ -851,7 +851,7 @@ describe('NewgisticsClient.voidTracking', function() {
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
             client_secret: process.env.NEWGISTICS_CLIENT_SECRET,
-            shippingapi_url: 'https://httpstat.us/500#'
+            shippingapi_url: 'https://httpbin.org/status/500#'
         });
 
         newgisticsClient.voidTracking('abc', function(err) {
