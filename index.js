@@ -67,9 +67,6 @@ function NewgisticsClient(args) {
             };
 
             request(req, function(err, res, body) {
-                console.log(package);
-                console.log(body);
-
                 if (err) {
                     return callback(err);
                 }
