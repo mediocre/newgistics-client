@@ -172,7 +172,7 @@ describe('NewgisticsClient.createPackage', function() {
         });
     });
 
-    it('should create a package', function(done) {
+    it.only('should create a package', function(done) {
         const newgisticsClient = new NewgisticsClient({
             authapi_url: process.env.NEWGISTICS_AUTHAPI_URL,
             client_id: process.env.NEWGISTICS_CLIENT_ID,
