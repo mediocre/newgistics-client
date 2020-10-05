@@ -51,7 +51,7 @@ function NewgisticsClient(args) {
         });
     };
 
-    this.createPackage = function(package, callback) {
+    this.createPackage = function(_package, callback) {
         this.getToken(function(err, token) {
             if (err) {
                 return callback(err);
@@ -61,7 +61,7 @@ function NewgisticsClient(args) {
                 auth: {
                     bearer: token.access_token
                 },
-                json: package,
+                json: _package,
                 method: 'POST',
                 url: `${opts.shippingapi_url}/v1/packages`
             };
