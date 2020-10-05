@@ -103,7 +103,7 @@ describe('NewgisticsClient.closeout', function() {
 });
 
 describe('NewgisticsClient.createPackage', function() {
-    this.timeout(5000);
+    this.timeout(60000);
 
     it('should return an error', function(done) {
         // Clear existing token
@@ -238,7 +238,7 @@ describe('NewgisticsClient.createPackage', function() {
 });
 
 describe('NewgisticsClient.getToken', function() {
-    this.timeout(5000);
+    this.timeout(60000);
 
     beforeEach(function() {
         // Clear existing token
@@ -331,7 +331,7 @@ describe('NewgisticsClient.getToken', function() {
 });
 
 describe('NewgisticsClient.ping', function() {
-    this.timeout(5000);
+    this.timeout(60000);
 
     it('should return an error for invalid shippingapi_url', function(done) {
         const newgisticsClient = new NewgisticsClient({
@@ -377,7 +377,7 @@ describe('NewgisticsClient.ping', function() {
 });
 
 describe('NewgisticsClient.reprintPackage', function() {
-    this.timeout(5000);
+    this.timeout(60000);
 
     it('should return an error', function(done) {
         // Clear existing token
@@ -521,7 +521,7 @@ describe('NewgisticsClient.reprintPackage', function() {
 });
 
 describe('NewgisticsClient.reprintTracking', function() {
-    this.timeout(5000);
+    this.timeout(60000);
 
     it('should return an error', function(done) {
         // Clear existing token
@@ -665,7 +665,7 @@ describe('NewgisticsClient.reprintTracking', function() {
 });
 
 describe('NewgisticsClient.voidPackage', function() {
-    this.timeout(5000);
+    this.timeout(60000);
 
     it('should return an error', function(done) {
         // Clear existing token
@@ -805,7 +805,7 @@ describe('NewgisticsClient.voidPackage', function() {
 });
 
 describe('NewgisticsClient.voidTracking', function() {
-    this.timeout(5000);
+    this.timeout(60000);
 
     it('should return an error', function(done) {
         // Clear existing token
