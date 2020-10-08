@@ -59,7 +59,7 @@ jobs:
     - name: Notify Slack
       uses: homoluctus/slatify@master
       with:
-        type: ${{ needs.build.result }}
+        type: ${{ needs.test.result }}
         job_name: '${{ github.repository }} - Tests'
         channel: '#development'
         url: ${{ secrets.SLACK_WEBHOOK_URL }}
