@@ -5,20 +5,27 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-18.04
-    continue-on-error: true
+    #continue-on-error: true
 
-    strategy:
-      matrix:
-        node-version: [14.13.0, 12.18.4]
-        mongodb-version: [3.6.19]
-        redis-version: [4.0.14]
+    # strategy:
+    #   matrix:
+    #     node-version: [14.13.0, 12.18.4]
+    #     mongodb-version: [3.6.19]
+    #     redis-version: [4.0.14]
+
+    # steps:
+    #   
+    # - name: Setup Node ${{ matrix.node-version }}
+    #   uses: actions/setup-node@v1
+    #   with:
+    #     node-version: ${{ matrix.node-version }}
 
     steps:
       
-    - name: Setup Node ${{ matrix.node-version }}
+    - name: Setup Node 12.18.4
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 12.18.4
 
     - name: Checkout from Git
       uses: actions/checkout@v2
