@@ -12,6 +12,9 @@ jobs:
         mongodb-version: [3.6.19, 4.0.22]
         redis-version: [4.0.14]
 
+    env:
+      DO_COVERALLS: 14.15.0/4.0.22/4.0.14
+
     steps:
       
     - name: Setup Node ${{ matrix.node-version }}
@@ -34,7 +37,31 @@ jobs:
       run: npm install
 
     - name: Run tests and coverage
-      run: npm run coveralls
+      run: |-
+        if [ "${{ matrix.node-version }}/${{ matrix.mongodb-version }}/${{ matrix.redis-version }}"x == "${DO_COVERALLS}"x ]
+        then
+          npm run coveralls
+        else
+          true
+        fi
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        NEWGISTICS_AUTHAPI_URL: ${{ secrets.NEWGISTICS_AUTHAPI_URL }}
+        NEWGISTICS_CLIENT_FACILITY_ID: ${{ secrets.NEWGISTICS_CLIENT_FACILITY_ID }}
+        NEWGISTICS_CLIENT_ID: ${{ secrets.NEWGISTICS_CLIENT_ID }}
+        NEWGISTICS_CLIENT_SECRET: ${{ secrets.NEWGISTICS_CLIENT_SECRET }}
+        NEWGISTICS_FACILITY_ID: ${{ secrets.NEWGISTICS_FACILITY_ID }}
+        NEWGISTICS_MERCHANT_ID: ${{ secrets.NEWGISTICS_MERCHANT_ID }}
+        NEWGISTICS_SHIPPINGAPI_URL: ${{ secrets.NEWGISTICS_SHIPPINGAPI_URL }}
+
+    - name: Run tests
+      run: |-
+        if [ ! "${{ matrix.node-version }}/${{ matrix.mongodb-version }}/${{ matrix.redis-version }}"x == "${DO_COVERALLS}"x ]
+        then
+          npm test
+        else
+          true
+        fi
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         NEWGISTICS_AUTHAPI_URL: ${{ secrets.NEWGISTICS_AUTHAPI_URL }}
